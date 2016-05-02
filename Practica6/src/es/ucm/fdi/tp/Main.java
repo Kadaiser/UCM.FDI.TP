@@ -12,7 +12,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-//import es.ucm.fdi.tp.basecode.attt.AdvancedTTTFactory;
 import es.ucm.fdi.tp.practica5.attt.AdvancedTTTFactoryExt;
 import es.ucm.fdi.tp.basecode.bgame.control.ConsoleCtrl;
 import es.ucm.fdi.tp.basecode.bgame.control.ConsoleCtrlMVC;
@@ -23,11 +22,9 @@ import es.ucm.fdi.tp.basecode.bgame.model.AIAlgorithm;
 import es.ucm.fdi.tp.basecode.bgame.model.Game;
 import es.ucm.fdi.tp.basecode.bgame.model.GameError;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
-//import es.ucm.fdi.tp.practica4.ataxx.AtaxxFactory;
+import es.ucm.fdi.tp.basecode.minmax.MinMax;
 import es.ucm.fdi.tp.practica5.ataxx.AtaxxFactoryExt;
-//import es.ucm.fdi.tp.basecode.connectn.ConnectNFactory;
 import es.ucm.fdi.tp.practica5.connectn.ConnectNFactoryExt;
-//import es.ucm.fdi.tp.basecode.ttt.TicTacToeFactory;
 import es.ucm.fdi.tp.practica5.ttt.TicTacToeFactoryExt;
 
 /**
@@ -46,6 +43,37 @@ import es.ucm.fdi.tp.practica5.ttt.TicTacToeFactoryExt;
  */
 public class Main {
 
+	/**
+	 * The possible application modes.
+	 * <p>
+	 * Modos de aplicacion disponibles.
+	 * </P>
+	 */
+	enum applicationModeInfo {
+		NORMAL("normal", "Normal"), CLIENT("client", "Cliente"), SERVER("server", "Servidor");
+
+		private String id;
+		private String desc;
+
+		applicationModeInfo(String id, String desc) {
+			this.id= id;
+			this.desc = desc;
+		}
+
+		public String getId() {
+			return id;
+		}
+		public String getDesc() {
+			return desc;
+		}
+
+		@Override
+		public String toString() {
+			return id;
+		}
+	}
+	
+	
 	/**
 	 * The possible views.
 	 * <p>
@@ -138,6 +166,46 @@ public class Main {
 	}
 
 	/**
+	 * Algorithms for automatic players. The 'none' option means that the
+	 * default behavior is used (i.e., a player that waits for some time and
+	 * then generates a random move)
+	 * 
+	 */
+	private enum AlgorithmForAIPlayer {
+		NONE("none", "No AI Algorithm"), MINMAX("minmax", "MinMax"), MINMAXAB("minmaxab",
+				"MinMax with Alhpa-Beta Prunning");
+
+		private String id;
+		private String desc;
+
+		AlgorithmForAIPlayer(String id, String desc) {
+			this.id = id;
+			this.desc = desc;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public String getDesc() {
+			return desc;
+		}
+
+		@Override
+		public String toString() {
+			return desc;
+		}
+	}
+
+	/**
+	 * Default aplication mode launch.
+	 * <p>
+	 * Modo de lanzamiento de aplicaion por defecto.
+	 */
+	final private static applicationModeInfo DEFAULT_APPLICATIONMODE = applicationModeInfo.NORMAL;
+
+	
+	/**
 	 * Default game to play.
 	 * <p>
 	 * Juego por defecto.
@@ -157,6 +225,25 @@ public class Main {
 	 * Modo de juego por defecto.
 	 */
 	final private static PlayerMode DEFAULT_PLAYERMODE = PlayerMode.MANUAL;
+	
+	/**
+	 * Default algorithm for automatic player.
+	 */
+	final private static AlgorithmForAIPlayer DEFAULT_AIALG = AlgorithmForAIPlayer.NONE;
+
+	/**
+	 * The game mode aplication selected for the progam
+	 * correspond to what is provided in the -a
+	 * option (or using the default value {@link #DEFAULT_APPLICATIONMODE}).
+	 * 
+	 * <p>
+	 * El modo de aplicacion seleccionado para el frgama se 
+	 * corresponde con el valor que se proporciona en
+	 * la opcion -a (o el valor por defecto {@link #DEFAULT_APPLICATIONMODE}).
+	 * </p>
+	 */
+	private static applicationModeInfo applicationMode;
+
 
 	/**
 	 * This field includes a game factory that is constructed after parsing the
@@ -245,6 +332,14 @@ public class Main {
 	private static AIAlgorithm aiPlayerAlg;
 	
 	/**
+	 * The depth of the maximum depth in the MinMax Algorithm.
+	 * 
+	 * <p>
+	 * La profundidad m√°xima del √°rbol MinMax
+	 */
+	private static Integer minmaxTreeDepth;
+	
+	/**
 	 * Number of columns provided with the option -o ({@code null} if not
 	 * provided).
 	 * 
@@ -285,6 +380,10 @@ public class Main {
 		cmdLineOptions.addOption(constructPlayersOption()); // -p or --players
 		cmdLineOptions.addOption(constructDimensionOption()); // -d or --dim
 		cmdLineOptions.addOption(constructObstacleOption()); // -o or --obstacle
+		cmdLineOptions.addOption(constructMinMaxDepathOption()); // -md or --minmax-depth
+		cmdLineOptions.addOption(constructAIAlgOption()); // -aialg ...
+		cmdLineOptions.addOption(constructAplicationMode()); // -am or --application-mode
+		
 		// parse the command line as provided in args
 		//
 		CommandLineParser parser = new DefaultParser();
@@ -297,6 +396,9 @@ public class Main {
 			parseViewOption(line);
 			parseMultiViewOption(line);
 			parsePlayersOptions(line);
+			parseMixMaxDepthOption(line);
+			parseAIAlgOption(line);
+			parseApplicationModeOption(line);
 			
 			// if there are some remaining arguments, then something wrong is
 			// provided in the command line!
@@ -316,7 +418,56 @@ public class Main {
 		}
 
 	}
+	
+	/**
+	 * Builds the aplication mode(-am or --application-mode) CLI option.
+	 * 
+	 * <p>
+	 * Construye la opcion CLI -am.
+	 * 
+	 * @return CLI {@link Option} for the application-mode option.
+	 *         <p>
+	 *         Objeto {@link Option} de esta opcion.
+	 */
+	private static Option constructAplicationMode() {
+		String optionInfo = "The application mode to use ( ";
+		for (ViewInfo i : ViewInfo.values()) {
+			optionInfo += i.getId() + " [for " + i.getDesc() + "] ";
+		}
+		optionInfo += "). By defualt, " + DEFAULT_APPLICATIONMODE.getId() + ".";
+		Option opt = new Option("am", "application-mode", true, optionInfo);
+		opt.setArgName("view identifier");
+		return opt;
+	}
+	
+	/**
+	 * Builds the MinMax tree depth (-md or --minmax-depth) CLI option.
+	 * 
+	 * @return CLI {@link {@link Option} for the MinMax tree depth option.
+	 */
+	private static Option constructMinMaxDepathOption() {
+		Option opt = new Option("md", "minmax-depth", true, "The maximum depth of the MinMax tree");
+		opt.setArgName("number");
+		return opt;
+	}
 
+	/**
+	 * Builds the ai-algorithm (-aialg or --ai-algorithm) CLI option.
+	 * 
+	 * @return CLI {@link {@link Option} for the ai-algorithm option.
+	 */
+	private static Option constructAIAlgOption() {
+		String optionInfo = "The AI algorithm to use ( ";
+		for (AlgorithmForAIPlayer alg : AlgorithmForAIPlayer.values()) {
+			optionInfo += alg.getId() + " [for " + alg.getDesc() + "] ";
+		}
+		optionInfo += "). By defualt, no algorithm is used.";
+		Option opt = new Option("aialg", "ai-algorithm", true, optionInfo);
+		opt.setArgName("algorithm for ai player");
+		return opt;
+	}
+
+	
 	/**
 	 * Builds the multiview (-m or --multiviews) CLI option.
 	 * 
@@ -325,7 +476,6 @@ public class Main {
 	 * 
 	 * @return CLI {@link {@link Option} for the multiview option.
 	 */
-
 	private static Option constructMlutiViewOption() {
 		return new Option("m", "multiviews", false,
 				"Create a separate view for each player (valid only when using the " + ViewInfo.WINDOW + " view)");
@@ -346,6 +496,43 @@ public class Main {
 	}
 
 	/**
+	 * Parses the ai-algorithm option (-aialg or --ai-algorithm). It sets the
+	 * value of {@link #minmaxTreeDepth} accordingly.
+	 * 
+	 * 
+	 * @param line
+	 *            CLI {@link CommandLine} object.
+	 */
+	private static void parseAIAlgOption(CommandLine line) throws ParseException {
+		String aialg = line.getOptionValue("aialg", DEFAULT_AIALG.getId());
+
+		AlgorithmForAIPlayer selectedAlg = null;
+		for (AlgorithmForAIPlayer a : AlgorithmForAIPlayer.values()) {
+			if (a.getId().equals(aialg)) {
+				selectedAlg = a;
+				break;
+			}
+		}
+
+		if (selectedAlg == null) {
+			throw new ParseException("Uknown AI algorithms '" + aialg + "'");
+		}
+
+		switch (selectedAlg) {
+		case MINMAX:
+			aiPlayerAlg = minmaxTreeDepth == null ? new MinMax(false) : new MinMax(minmaxTreeDepth, false);
+			break;
+		case MINMAXAB:
+			aiPlayerAlg = minmaxTreeDepth == null ? new MinMax() : new MinMax(minmaxTreeDepth);
+			break;
+		case NONE:
+			aiPlayerAlg = null;
+			break;
+		}
+	}
+	
+	
+	/**
 	 * Builds the view (-v or --view) CLI option.
 	 * 
 	 * <p>
@@ -365,7 +552,53 @@ public class Main {
 		opt.setArgName("view identifier");
 		return opt;
 	}
+	
+	
+	/**
+	 * Parses the application mode option (-am or --application-mode). It sets the
+	 * value of {@link #applicationMode} accordingly.
+	 * 
+	 * 
+	 * @param line
+	 *            CLI {@link CommandLine} object.
+	 */
+	private static void parseApplicationModeOption(CommandLine line) throws ParseException {
+		String modeVal = line.getOptionValue("am", DEFAULT_APPLICATIONMODE.getId());
 
+		for (applicationModeInfo o : applicationModeInfo.values()) {
+			if (modeVal.equals(o.getId())) {
+				applicationMode = o;
+			}
+		}
+		if (applicationMode == null) {
+			throw new ParseException("Invalid value for the application mode '" + modeVal + "'");
+		}
+		
+	}
+	
+
+	/**
+	 * Parses the MinMax tree depth option (-md or --minmax-depth). It sets the
+	 * value of {@link #minmaxTreeDepth} accordingly.
+	 * 
+	 * 
+	 * @param line
+	 *            CLI {@link CommandLine} object.
+	 */
+	private static void parseMixMaxDepthOption(CommandLine line) throws ParseException {
+		String depthVal = line.getOptionValue("md");
+		minmaxTreeDepth = null;
+
+		if (depthVal != null) {
+			try {
+				minmaxTreeDepth = Integer.parseInt(depthVal);
+			} catch (NumberFormatException e) {
+				throw new ParseException("Invalid value for the MinMax depth '" + depthVal + "'");
+			}
+		}
+	}
+
+	
 	/**
 	 * Parses the view option (-v or --view). It sets the value of {@link #view}
 	 * accordingly.
@@ -741,11 +974,11 @@ public class Main {
 	}
 
 	/**
-	 * Starts a game. Should be called after {@link #parseArgs(String[])} so
+	 * Starts a game in local mode. Should be called after {@link #parseArgs(String[])} so
 	 * some fields are set to their appropriate values.
 	 * 
 	 * <p>
-	 * Inicia un juego. Debe llamarse despues de {@link #parseArgs(String[])}
+	 * Inicia un juego en modo local. Debe llamarse despues de {@link #parseArgs(String[])}
 	 * para que los atributos tengan los valores correctos.
 	 * 
 	 */
@@ -793,6 +1026,35 @@ public class Main {
 		}
 		c.start();
 	}
+	
+	/**
+	 * Starts a game in Server Mode. Should be called after {@link #parseArgs(String[])} so
+	 * some fields are set to their appropriate values.
+	 * 
+	 * <p>
+	 * Inicia un juego en modo servidor. Debe llamarse despues de {@link #parseArgs(String[])}
+	 * para que los atributos tengan los valores correctos.
+	 * 
+	 */
+	private static void startServer() {
+		throw new UnsupportedOperationException("The server isn¥t working yet");
+		
+	}
+
+	/**
+	 * Starts a game in client mode. Should be called after {@link #parseArgs(String[])} so
+	 * some fields are set to their appropriate values.
+	 * 
+	 * <p>
+	 * Inicia un juego en modo cliente. Debe llamarse despues de {@link #parseArgs(String[])}
+	 * para que los atributos tengan los valores correctos.
+	 * 
+	 */
+	private static void startClient() {
+		throw new UnsupportedOperationException("The client isn¥t working yet");
+		
+	}
+
 
 	/**
 	 * The main method. It calls {@link #parseArgs(String[])} and then
@@ -808,7 +1070,19 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		parseArgs(args);
-		startGame();
+		switch(applicationMode){
+		case NORMAL:
+			startGame();
+			break;
+		case CLIENT:
+			startClient();
+			break;
+		case SERVER:
+			startServer();
+			break;
+		default:
+			throw new UnsupportedOperationException("Something went wrong! The program sould start in a specific aplication mode");
+		}
 	}
 
 }

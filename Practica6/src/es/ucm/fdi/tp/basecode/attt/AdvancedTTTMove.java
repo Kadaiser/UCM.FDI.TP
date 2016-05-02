@@ -104,7 +104,7 @@ public class AdvancedTTTMove extends ConnectNMove {
 			return new AdvancedTTTMove(-1, -1, Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)), p);
 		} else {
 			m = advancedMove.matcher(str);
-			if (m.find()) {
+			if (m.matches()) {
 				return new AdvancedTTTMove(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)),
 						Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), p);
 			} else {
@@ -131,7 +131,7 @@ public class AdvancedTTTMove extends ConnectNMove {
 		if (srcRow == -1) {
 			return super.toString();
 		} else {
-			return super.toString() + " from (" + srcCol + "," + srcRow + ")";
+			return super.toString() + " from (" + srcRow + "," + srcCol + ")";
 		}
 	}
 }

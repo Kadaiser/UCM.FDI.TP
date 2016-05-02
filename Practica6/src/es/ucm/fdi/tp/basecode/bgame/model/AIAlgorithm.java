@@ -1,5 +1,6 @@
 package es.ucm.fdi.tp.basecode.bgame.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
  * como por ejemplo MINIMAX.
  *
  */
-public interface AIAlgorithm {
+public interface AIAlgorithm extends Serializable {
 
 	/**
 	 * Computes the 'best' next move.

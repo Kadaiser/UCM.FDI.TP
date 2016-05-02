@@ -3,6 +3,8 @@ package es.ucm.fdi.tp.basecode.bgame;
 import java.awt.Color;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * A class with some (static) miscellaneous methods.
@@ -15,6 +17,12 @@ public class Utils {
 
 	private static Random randGeneratorDiffSeed = new Random();
 
+	/**
+	 * An {@link Executor} created using
+	 * {@link Executors#newCachedThreadPool()}.
+	 */
+	public final static Executor worker = Executors.newCachedThreadPool();
+	
 	/**
 	 * Returns a random integer between 0 (inclusive) and n (exclusive). It
 	 * simply delegates to {@link Random#nextInt(int)}.
@@ -71,7 +79,7 @@ public class Utils {
 
 			@Override
 			public Color next() {
-				return new Color(r.nextInt(256), r.nextInt(256), r.nextInt(256), r.nextInt(256));
+				return new Color(255, r.nextInt(256), r.nextInt(256), r.nextInt(256));
 			}
 
 			@Override
@@ -102,6 +110,7 @@ public class Utils {
 		try {
 			Thread.sleep(delay);
 		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
 		}
 	}
 

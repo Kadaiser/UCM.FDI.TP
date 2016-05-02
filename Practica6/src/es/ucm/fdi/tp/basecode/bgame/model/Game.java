@@ -181,7 +181,7 @@ public class Game implements Observable<GameObserver> {
 		// We cannot start a game that is not in Starting state. In this case
 		// you should use restart() instead.
 		if (state != State.Starting) {
-			notifyError(new GameError("Game alreay startes"));
+			notifyError(new GameError("Game alreay started"));
 		}
 
 		// check that number of players is OK
@@ -191,23 +191,29 @@ public class Game implements Observable<GameObserver> {
 
 		// check for duplicate player names
 		Set<Piece> tmpPieces = new HashSet<Piece>();
+		boolean errors = false;
 		for (Piece p : pieces) {
 			if (p == null || !tmpPieces.add(p)) {
 				notifyError(new GameError("Multiple or invalid piece '" + p + "'"));
+				errors = true;
 			}
 		}
-
-		this.board = rules.createBoard(pieces); // create the initial board
-		this.roBoard = new ReadOnlyBoard(board); // make a readonly copy
-		this.pieces = new ArrayList<Piece>(pieces); // make a copy of the list
-													// of pieces
-		this.roPieces = Collections.unmodifiableList(this.pieces); // and a read
-																	// only one
-		this.turn = rules.initialPlayer(board, pieces); // set the initial
-														// player
-		this.state = State.InPlay; // mark the game as started
-		notifyGameStart(null); // notify all observers that the game has
-								// started.
+		if (!errors) {
+			// create the initial board
+			this.board = rules.createBoard(pieces);
+			// keep a read-only copy of the same
+			this.roBoard = new ReadOnlyBoard(board);
+			// keep a copy of the piece-list
+			this.pieces = new ArrayList<Piece>(pieces);
+			// and a read-only copy of the same
+			this.roPieces = Collections.unmodifiableList(this.pieces);
+			// set the initial player
+			this.turn = rules.initialPlayer(board, pieces);
+			// mark the game as started
+			this.state = State.InPlay;
+			// and notify everybody that it has started
+			notifyGameStart(null);
+		}
 	}
 
 	/**
@@ -327,12 +333,19 @@ public class Game implements Observable<GameObserver> {
 	 */
 	public void makeMove(Player player) {
 		GameMove m = null;
+		boolean errors = false;
 		try {
 			m = player.requestMove(turn, roBoard, roPieces, rules);
+			if (m == null) {
+				throw new GameError("Player couldn't generate a valid mode!");
+			}
 		} catch (GameError e) {
 			notifyError(e);
+			errors = true;
 		}
-		executeMove(m);
+		if (!errors) {
+			executeMove(m);
+		}
 	}
 
 	/**
@@ -371,55 +384,63 @@ public class Game implements Observable<GameObserver> {
 	 */
 	private void executeMove(GameMove move) {
 
+		boolean errors = false;
+
 		// check if the game is in play
-		//
 		if (state != State.InPlay) {
 			notifyError(new GameError("Game is not in play"));
+			errors = true;
 		}
 
 		// the move must correspond to the current player
-		//
 		if (!move.getPiece().equals(turn)) {
 			notifyError(new GameError("It is not turn of " + move.getPiece()));
+			errors = true;
 		}
 
 		notifyStartMove(); // we are about to execute a move
 
 		// execute the move
-		//
-		try {
-			move.execute(this.board, this.roPieces); // execute the move, and
-														// then
-			notifyEndMove(true); // notify that the move has finished correctly
-		} catch (GameError e) {
-			notifyEndMove(false); // notify the the move has ended with error,
-			notifyError(e); // and then send the actual error message
-
+		if (!errors) {
+			try {
+				// execute the move
+				move.execute(this.board, this.roPieces);
+				// no exceptions? notify that the move has finished correctly
+				notifyEndMove(true);
+			} catch (GameError e) {
+				// exception caught: notify that the move has ended with error
+				notifyEndMove(false);
+				// and then send the actual error message
+				notifyError(e);
+				errors = true;
+			}
 		}
 
-		// compute the new status of the game
-		//
-		Pair<State, Piece> gameOverStatus = rules.updateState(board, pieces, turn);
+		if (!errors) {
+			// compute the new status of the game
+			//
+			Pair<State, Piece> gameOverStatus = rules.updateState(board, pieces, turn);
 
-		// modify the game state, according to result of updateState(...)
-		//
-		switch (gameOverStatus.getFirst()) {
-		case Draw:
-			state = State.Draw;
-			notifyDraw();
-			break;
-		case InPlay:
-			turn = rules.nextPlayer(board, pieces, turn);
-			notifyChangeTurn();
-			break;
-		case Won:
-			winner = gameOverStatus.getSecond();
-			state = State.Won;
-			notifyWon();
-			break;
-		default:
-			throw new UnsupportedOperationException(
-					"The state " + gameOverStatus.getFirst() + " is invalid at this point, something went wrong!");
+			// modify the game state, according to result of updateState(...)
+			//
+			switch (gameOverStatus.getFirst()) {
+			case Draw:
+				state = State.Draw;
+				notifyDraw();
+				break;
+			case InPlay:
+				turn = rules.nextPlayer(board, pieces, turn);
+				notifyChangeTurn();
+				break;
+			case Won:
+				winner = gameOverStatus.getSecond();
+				state = State.Won;
+				notifyWon();
+				break;
+			default:
+				throw new UnsupportedOperationException(
+						"The state " + gameOverStatus.getFirst() + " is invalid at this point, something went wrong!");
+			}
 		}
 	}
 
@@ -433,7 +454,7 @@ public class Game implements Observable<GameObserver> {
 	 * paramertro {@code observer} sea {@code null} notificamos a todos los
 	 * observadores, en caso contartio notificamos solo a {@code observer}.
 	 * 
-	 * @param o
+	 * @param observer
 	 */
 	private void notifyGameStart(GameObserver observer) {
 		if (observer == null) {

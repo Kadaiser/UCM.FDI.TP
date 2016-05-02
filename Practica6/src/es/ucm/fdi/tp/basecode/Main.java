@@ -23,22 +23,23 @@ import es.ucm.fdi.tp.basecode.bgame.model.Game;
 import es.ucm.fdi.tp.basecode.bgame.model.GameError;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
 import es.ucm.fdi.tp.basecode.connectn.ConnectNFactory;
+import es.ucm.fdi.tp.basecode.minmax.MinMax;
+//import es.ucm.fdi.tp.basecode.minmax.MinMax;
 import es.ucm.fdi.tp.basecode.ttt.TicTacToeFactory;
 
 /**
  * This is the class with the main method for the board games application.
  * 
  * It uses the Commons-CLI library for parsing command-line arguments: the game
- * to play, the players list, etc.. More information is available at
- * the <a href="https://commons.apache.org/proper/commons-cli/>commons-cli</a>
- * page
+ * to play, the players list, etc.. More information is available at the
+ * <a href="https://commons.apache.org/proper/commons-cli"/>commons-cli</a> page
  * 
  * <p>
  * Esta es la clase con el metodo main de inicio del programa. Se utiliza la
  * libreria Commons-CLI para leer argumentos de la linea de ordenes: el juego al
  * que se quiere jugar y la lista de jugadores. Puedes encontrar mas información
  * sobre esta libreria en la pagina de
- * <a href="https://commons.apache.org/proper/commons-cli/>commons-cli</a>
+ * <a href="https://commons.apache.org/proper/commons-cli"/>commons-cli</a>
  */
 public class Main {
 
@@ -48,8 +49,7 @@ public class Main {
 	 * Vistas disponibles.
 	 */
 	enum ViewInfo {
-		WINDOW("window", "Swing"),
-		CONSOLE("console", "Console");
+		WINDOW("window", "Swing"), CONSOLE("console", "Console");
 
 		private String id;
 		private String desc;
@@ -79,9 +79,8 @@ public class Main {
 	 * Juegos disponibles.
 	 */
 	enum GameInfo {
-		CONNECT_N("cn", "ConnectN"),
-		TIC_TAC_TOE("ttt", "Tic-Tac-Toe"),
-		ADVANCED_TIC_TAC_TOE("attt", "Advanced Tic-Tac-Toe");
+		CONNECT_N("cn", "ConnectN"), TIC_TAC_TOE("ttt", "Tic-Tac-Toe"), ADVANCED_TIC_TAC_TOE("attt",
+				"Advanced Tic-Tac-Toe");
 
 		private String id;
 		private String desc;
@@ -137,6 +136,38 @@ public class Main {
 	}
 
 	/**
+	 * Algorithms for automatic players. The 'none' option means that the
+	 * default behavior is used (i.e., a player that waits for some time and
+	 * then generates a random move)
+	 * 
+	 */
+	private enum AlgorithmForAIPlayer {
+		NONE("none", "No AI Algorithm"), MINMAX("minmax", "MinMax"), MINMAXAB("minmaxab",
+				"MinMax with Alhpa-Beta Prunning");
+
+		private String id;
+		private String desc;
+
+		AlgorithmForAIPlayer(String id, String desc) {
+			this.id = id;
+			this.desc = desc;
+		}
+
+		public String getId() {
+			return id;
+		}
+
+		public String getDesc() {
+			return desc;
+		}
+
+		@Override
+		public String toString() {
+			return desc;
+		}
+	}
+
+	/**
 	 * Default game to play.
 	 * <p>
 	 * Juego por defecto.
@@ -156,6 +187,11 @@ public class Main {
 	 * Modo de juego por defecto.
 	 */
 	final private static PlayerMode DEFAULT_PLAYERMODE = PlayerMode.MANUAL;
+
+	/**
+	 * Default algorithm for automatic player.
+	 */
+	final private static AlgorithmForAIPlayer DEFAULT_AIALG = AlgorithmForAIPlayer.NONE;
 
 	/**
 	 * This field includes a game factory that is constructed after parsing the
@@ -238,14 +274,21 @@ public class Main {
 	 * always {@code null}.
 	 * 
 	 * <p>
-	 * Algoritmo a utilizar por el jugador automatico. Actualmente no se
-	 * utiliza, por lo que siempre es {@code null}.
+	 * Algoritmo a utilizar por el jugador automatico. 
 	 */
 	private static AIAlgorithm aiPlayerAlg;
 
 	/**
-	 * Processes the command-line arguments and modify the fields of this
-	 * class with corresponding values. E.g., the factory, the pieces, etc.
+	 * The depth of the maximum depth in the MinMax Algorithm.
+	 * 
+	 * <p>
+	 * La profundidad máxima del árbol MinMax
+	 */
+	private static Integer minmaxTreeDepth;
+
+	/**
+	 * Processes the command-line arguments and modify the fields of this class
+	 * with corresponding values. E.g., the factory, the pieces, etc.
 	 *
 	 * <p>
 	 * Procesa la linea de ordenes del programa y crea los objetos necesarios
@@ -273,6 +316,9 @@ public class Main {
 																// --multiviews
 		cmdLineOptions.addOption(constructPlayersOption()); // -p or --players
 		cmdLineOptions.addOption(constructDimensionOption()); // -d or --dim
+		cmdLineOptions.addOption(constructMinMaxDepathOption()); // -md or
+																	// --minmax-depth
+		cmdLineOptions.addOption(constructAIAlgOption()); // -aialg ...
 
 		// parse the command line as provided in args
 		//
@@ -285,6 +331,8 @@ public class Main {
 			parseViewOption(line);
 			parseMultiViewOption(line);
 			parsePlayersOptions(line);
+			parseMixMaxDepthOption(line);
+			parseAIAlgOption(line);
 
 			// if there are some remaining arguments, then something wrong is
 			// provided in the command line!
@@ -303,6 +351,90 @@ public class Main {
 			System.exit(1);
 		}
 
+	}
+
+	/**
+	 * Builds the MinMax tree depth (-md or --minmax-depth) CLI option.
+	 * 
+	 * @return CLI {@link {@link Option} for the MinMax tree depth option.
+	 */
+	private static Option constructMinMaxDepathOption() {
+		Option opt = new Option("md", "minmax-depth", true, "The maximum depth of the MinMax tree");
+		opt.setArgName("number");
+		return opt;
+	}
+
+	/**
+	 * Parses the MinMax tree depth option (-md or --minmax-depth). It sets the
+	 * value of {@link #minmaxTreeDepth} accordingly.
+	 * 
+	 * 
+	 * @param line
+	 *            CLI {@link CommandLine} object.
+	 */
+	private static void parseMixMaxDepthOption(CommandLine line) throws ParseException {
+		String depthVal = line.getOptionValue("md");
+		minmaxTreeDepth = null;
+
+		if (depthVal != null) {
+			try {
+				minmaxTreeDepth = Integer.parseInt(depthVal);
+			} catch (NumberFormatException e) {
+				throw new ParseException("Invalid value for the MinMax depth '" + depthVal + "'");
+			}
+		}
+	}
+
+	/**
+	 * Builds the ai-algorithm (-aialg or --ai-algorithm) CLI option.
+	 * 
+	 * @return CLI {@link {@link Option} for the ai-algorithm option.
+	 */
+	private static Option constructAIAlgOption() {
+		String optionInfo = "The AI algorithm to use ( ";
+		for (AlgorithmForAIPlayer alg : AlgorithmForAIPlayer.values()) {
+			optionInfo += alg.getId() + " [for " + alg.getDesc() + "] ";
+		}
+		optionInfo += "). By defualt, no algorithm is used.";
+		Option opt = new Option("aialg", "ai-algorithm", true, optionInfo);
+		opt.setArgName("algorithm for ai player");
+		return opt;
+	}
+
+	/**
+	 * Parses the ai-algorithm option (-aialg or --ai-algorithm). It sets the
+	 * value of {@link #minmaxTreeDepth} accordingly.
+	 * 
+	 * 
+	 * @param line
+	 *            CLI {@link CommandLine} object.
+	 */
+	private static void parseAIAlgOption(CommandLine line) throws ParseException {
+		String aialg = line.getOptionValue("aialg", DEFAULT_AIALG.getId());
+
+		AlgorithmForAIPlayer selectedAlg = null;
+		for (AlgorithmForAIPlayer a : AlgorithmForAIPlayer.values()) {
+			if (a.getId().equals(aialg)) {
+				selectedAlg = a;
+				break;
+			}
+		}
+
+		if (selectedAlg == null) {
+			throw new ParseException("Uknown AI algorithms '" + aialg + "'");
+		}
+
+		switch (selectedAlg) {
+		case MINMAX:
+			aiPlayerAlg = minmaxTreeDepth == null ? new MinMax(false) : new MinMax(minmaxTreeDepth, false);
+			break;
+		case MINMAXAB:
+			aiPlayerAlg = minmaxTreeDepth == null ? new MinMax() : new MinMax(minmaxTreeDepth);
+			break;
+		case NONE:
+			aiPlayerAlg = null;
+			break;
+		}
 	}
 
 	/**
@@ -489,8 +621,8 @@ public class Main {
 	/**
 	 * Parses the game option (-g or --game). It sets the value of
 	 * {@link #gameFactory} accordingly. Usually it requires that
-	 * {@link #parseDimensionOption(CommandLine)} has been called already to parse
-	 * the dimension option.
+	 * {@link #parseDimensionOption(CommandLine)} has been called already to
+	 * parse the dimension option.
 	 * 
 	 * <p>
 	 * Extrae la opcion de juego (-g). Asigna el valor del atributo
@@ -521,8 +653,8 @@ public class Main {
 		if (selectedGame == null) {
 			throw new ParseException("Uknown game '" + gameVal + "'");
 		}
-	
-		switch ( selectedGame ) {
+
+		switch (selectedGame) {
 		case ADVANCED_TIC_TAC_TOE:
 			gameFactory = new AdvancedTTTFactory();
 			break;
@@ -539,7 +671,7 @@ public class Main {
 		default:
 			throw new UnsupportedOperationException("Something went wrong! This program point should be unreachable!");
 		}
-	
+
 	}
 
 	/**
@@ -693,6 +825,8 @@ public class Main {
 			for (int i = 0; i < pieces.size(); i++) {
 				switch (playerModes.get(i)) {
 				case AI:
+					System.out.println(aiPlayerAlg);
+
 					players.add(gameFactory.createAIPlayer(aiPlayerAlg));
 					break;
 				case MANUAL:
