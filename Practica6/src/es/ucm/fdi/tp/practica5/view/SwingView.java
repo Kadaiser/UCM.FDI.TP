@@ -613,7 +613,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 		this.ControllerPanel.add(this.automaticMovePanel);
 	}
 	
-//--------------------------COMPONENTE DE MOVIMIENTO AUTOMATICO-------------------------------//
+//--------------------------COMPONENTE DE SALIDA Y RESET-------------------------------//
 	
 	/**
 	 * <b>exitPanel</b>
