@@ -1,8 +1,7 @@
 package es.ucm.fdi.tp.Practica6.server;
 
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
@@ -14,8 +13,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -180,53 +177,20 @@ public class GameServer extends Controller implements GameObserver {
 	 */
 	private void constructGraphicGUI(){
 		JFrame window = new JFrame("Game Server");
-		this.infoStatusArea = new TextArea(40,40);
-		this.infoStatusArea.setEditable(false);
-		this.infoStatusArea.setFont(new Font("Comic Sans MS", Font.BOLD, 11));
-		window.add(new JScrollPane(infoStatusArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
-
-		JButton quitButton = new JButton("Stop Server");
-		quitButton.setToolTipText("Stop and close the server");
-		quitButton.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int n = JOptionPane.showOptionDialog(new JFrame(), "Are sure you want to close the server?", "Close server",
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
-				
-				if (n == 0) {
-					try {
-						stop();
-					} catch (GameError _e) {
-					}
-					window.setVisible(false);
-					window.dispose();
-					System.exit(0);
-				}
-			}
-			
-		});
-		//window.add(quitButton);
-		window.setMaximumSize(new Dimension(400,400));
-		window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		window.pack();
-		window.setVisible(true);
-		/*
-		JFrame window = new JFrame("Game Server");
-		window.setLayout(new BoxLayout(window, BoxLayout.X_AXIS));
-		JPanel infoStatus = createPanelLabeled("Status Server Information", Color.BLACK);
-		JPanel infoPlayers = createPanelLabeled("Status Server Information", Color.BLACK);
 		
-		this.infoStatusArea = new TextArea(40,40);
-		this.infoStatusArea.setEditable(false);
-		this.infoStatusArea.setFont(new Font("Comic Sans MS", Font.BOLD, 11));	
-		window.add(infoStatus.add(new JScrollPane(infoStatusArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)));
 		
-		this.infoPlayersArea = new TextArea(40,10);
+		JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
+		JPanel StatusServerPanel = new JPanel(new BorderLayout(5, 5));
+		JPanel StatusPlayerPanel = new JPanel();
+		this.infoStatusArea = new TextArea(20,60);
+		this.infoPlayersArea = new TextArea(20,20); 
+		this.infoStatusArea.setEditable(false);
 		this.infoPlayersArea.setEditable(false);
-		this.infoPlayersArea.setFont(new Font("Comic Sans MS", Font.BOLD, 11));	
-		window.add(infoPlayers.add(new JScrollPane(infoPlayersArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)));
-		
+		this.infoStatusArea.setFont(new Font("Comic Sans MS", Font.BOLD, 11));
+		StatusServerPanel.add(new JScrollPane(infoStatusArea));
+		StatusPlayerPanel.add(new JScrollPane(infoPlayersArea));
+		mainPanel.add(StatusServerPanel, BorderLayout.CENTER);
+
 		JButton quitButton = new JButton("Stop Server");
 		quitButton.setToolTipText("Stop and close the server");
 		quitButton.addActionListener(new ActionListener(){
@@ -248,30 +212,14 @@ public class GameServer extends Controller implements GameObserver {
 			}
 			
 		});
-		window.add(quitButton);
-		window.setMaximumSize(new Dimension(400,400));
+		mainPanel.add(StatusPlayerPanel, BorderLayout.LINE_END);
+		mainPanel.add(quitButton, BorderLayout.PAGE_END);
+		window.add(mainPanel);
+		window.setMinimumSize(new Dimension(600,400));
 		window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		window.pack();
 		window.setVisible(true);
-		*/
 	}
-	
-	/**
-	 * <b>gameMessagesPanel</b>
-	 * <p> Creation procedure accumulator panel components</p>
-	 * <p> Procedimiento de creación de un panel etiquetado y centrado</p> 
-	 * @param label String whit the label for the titled border
-	 * @param color background configuration
-	 * @return a instanced titled JPanel 
-	 */
-	protected JPanel createPanelLabeled(String label, Color color) {
-		JPanel panel = new JPanel();
-		panel.setBackground(color);
-		panel.setBorder(BorderFactory.createTitledBorder(label));
-		panel.setLayout(new FlowLayout(FlowLayout.CENTER));
-		return panel;
-	}
-	
 	
 	/**
 	 * <b>log</b>
