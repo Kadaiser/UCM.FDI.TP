@@ -1,6 +1,9 @@
 package es.ucm.fdi.tp.Practica6.server;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,15 +14,27 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
 import es.ucm.fdi.tp.Practica6.buffer.Connection;
+import es.ucm.fdi.tp.Practica6.server.response.ChangeTurnResponse;
+import es.ucm.fdi.tp.Practica6.server.response.ErrorResponse;
+import es.ucm.fdi.tp.Practica6.server.response.GameOverResponse;
+import es.ucm.fdi.tp.Practica6.server.response.GameStartResponse;
+import es.ucm.fdi.tp.Practica6.server.response.MoveEndResponse;
+import es.ucm.fdi.tp.Practica6.server.response.MoveStartResponse;
+import es.ucm.fdi.tp.Practica6.server.response.Response;
 import es.ucm.fdi.tp.basecode.bgame.control.Controller;
 import es.ucm.fdi.tp.basecode.bgame.control.GameFactory;
 import es.ucm.fdi.tp.basecode.bgame.control.Player;
+import es.ucm.fdi.tp.basecode.bgame.control.commands.Command;
 import es.ucm.fdi.tp.basecode.bgame.model.Board;
 import es.ucm.fdi.tp.basecode.bgame.model.Game;
 import es.ucm.fdi.tp.basecode.bgame.model.Game.State;
@@ -61,9 +76,16 @@ public class GameServer extends Controller implements GameObserver {
 	
 	/**
 	 * <b>infoArea</b>
-	 * <p>Campo de log de informe de eventos del servidor</p> 
+	 * <p>Campo de informe de eventos del servidor</p> 
 	 */
-	private TextArea infoArea;
+	private TextArea infoStatusArea;
+	
+	/**
+	 * <b>infoPlayersArea</b>
+	 * <p>Campo de informe de los jugadores conectados al servidor</p> 
+	 */
+	private TextArea infoPlayersArea;
+
 
 //---------------------------------------------ATRIBUTOS VOLATILE------------------------------------//
 	/**
@@ -113,8 +135,8 @@ public class GameServer extends Controller implements GameObserver {
 		try {
 			super.stop();
 		} catch (GameError e) {
-
 		}
+		this.gameOver = true;
 	}
 
 	@Override
@@ -158,8 +180,11 @@ public class GameServer extends Controller implements GameObserver {
 	 */
 	private void constructGraphicGUI(){
 		JFrame window = new JFrame("Game Server");
-		
-		this.infoArea = new TextArea();
+		this.infoStatusArea = new TextArea(40,40);
+		this.infoStatusArea.setEditable(false);
+		this.infoStatusArea.setFont(new Font("Comic Sans MS", Font.BOLD, 11));
+		window.add(new JScrollPane(infoStatusArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+
 		JButton quitButton = new JButton("Stop Server");
 		quitButton.setToolTipText("Stop and close the server");
 		quitButton.addActionListener(new ActionListener(){
@@ -181,11 +206,72 @@ public class GameServer extends Controller implements GameObserver {
 			}
 			
 		});
+		//window.add(quitButton);
 		window.setMaximumSize(new Dimension(400,400));
 		window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		window.pack();
 		window.setVisible(true);
+		/*
+		JFrame window = new JFrame("Game Server");
+		window.setLayout(new BoxLayout(window, BoxLayout.X_AXIS));
+		JPanel infoStatus = createPanelLabeled("Status Server Information", Color.BLACK);
+		JPanel infoPlayers = createPanelLabeled("Status Server Information", Color.BLACK);
+		
+		this.infoStatusArea = new TextArea(40,40);
+		this.infoStatusArea.setEditable(false);
+		this.infoStatusArea.setFont(new Font("Comic Sans MS", Font.BOLD, 11));	
+		window.add(infoStatus.add(new JScrollPane(infoStatusArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)));
+		
+		this.infoPlayersArea = new TextArea(40,10);
+		this.infoPlayersArea.setEditable(false);
+		this.infoPlayersArea.setFont(new Font("Comic Sans MS", Font.BOLD, 11));	
+		window.add(infoPlayers.add(new JScrollPane(infoPlayersArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)));
+		
+		JButton quitButton = new JButton("Stop Server");
+		quitButton.setToolTipText("Stop and close the server");
+		quitButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int n = JOptionPane.showOptionDialog(new JFrame(), "Are sure you want to close the server?", "Close server",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
+				
+				if (n == 0) {
+					try {
+						stop();
+					} catch (GameError _e) {
+					}
+					window.setVisible(false);
+					window.dispose();
+					System.exit(0);
+				}
+			}
+			
+		});
+		window.add(quitButton);
+		window.setMaximumSize(new Dimension(400,400));
+		window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		window.pack();
+		window.setVisible(true);
+		*/
 	}
+	
+	/**
+	 * <b>gameMessagesPanel</b>
+	 * <p> Creation procedure accumulator panel components</p>
+	 * <p> Procedimiento de creación de un panel etiquetado y centrado</p> 
+	 * @param label String whit the label for the titled border
+	 * @param color background configuration
+	 * @return a instanced titled JPanel 
+	 */
+	protected JPanel createPanelLabeled(String label, Color color) {
+		JPanel panel = new JPanel();
+		panel.setBackground(color);
+		panel.setBorder(BorderFactory.createTitledBorder(label));
+		panel.setLayout(new FlowLayout(FlowLayout.CENTER));
+		return panel;
+	}
+	
 	
 	/**
 	 * <b>log</b>
@@ -199,9 +285,9 @@ public class GameServer extends Controller implements GameObserver {
 			@Override
 			public void run() {
 				try {
-				infoArea.append(message + System.getProperty("line.separator"));
+				infoStatusArea.append(message + System.getProperty("line.separator"));
 				} catch (NullPointerException e) {
-					infoArea.setText("null");
+					infoStatusArea.setText("null");
 				}
 			}			
 		});
@@ -244,6 +330,7 @@ public class GameServer extends Controller implements GameObserver {
  * @throws ClassNotFoundException
  */
 	private void handleRequest(Socket s) throws IOException, ClassNotFoundException {
+		try{
 		Connection c = new Connection(s);
 		
 		Object clientRequest = c.getObject(); //1er mensaje del cliente DEBE ser string "Connect"
@@ -251,34 +338,94 @@ public class GameServer extends Controller implements GameObserver {
 			c.sendObject(new GameError("Invalid request"));
 			c.stop();
 			return;
-		} 
+		}
+		/*
+		 * Limitar los intentos de conexiones por encima del umbral de jugadores 
+		 */
+		if(this.numOfConnectedPlayers > gameFactory.gameRules().maxPlayers()){
+			c.sendObject(new GameError("Maximum players connections reached"));
+		/*
+		 * Incrementar el numero de clientes conectados
+		 * y añadir "c" a la lista de clientes
+		 */
+		this.numOfConnectedPlayers++;
+		this.clients.add(c);
+		}
+		/*
+		 * Enviar String "OK" al cliente, el gameFactory y la pieza
+		 * de la lista pieces en su posicion i-esima
+		 */
+		
+		/*
+		 * Si se cumple con el numero de jugadores se inicia la partida
+		 */
+		
+		/*
+		 * Invocar al startClientListener para iniciar una hebra para 
+		 * recibir comandos del cliente
+		 */
+		startClientListener(c);
+		}catch(IOException | ClassNotFoundException _e){}
 	}
+
+	/**
+	 * 
+	 * @param c
+	 */
+	private void startClientListener(Connection c) {
+	this.gameOver = false;
+	
+	Thread t = new Thread();
+	
+	/*
+	 * Iniciar una hebra para ejecutar el bucle mientras no haya terminado el juego
+	 * ni que el servidor se haya parado
+	 */
+	t.start();
+	
+	while(!stopped && !gameOver){}
+		//leer el comadno
+		Command cmd = (Command) c;
+		//ejecutar el comando
+		cmd.execute(this);
+}
 
 //------------------------------------------OBSERVABLE EVENTS--------------------------------------//
 
 
+	void fowardNotification (Response r){
+		//call c.sendObject(r) para cada conexion de cliente
+	}
+	
 	@Override
 	public void onGameStart(Board board, String gameDesc, List<Piece> pieces, Piece turn) {
+		fowardNotification(new GameStartResponse(board, gameDesc, pieces, turn));
 	}
 
 	@Override
 	public void onGameOver(Board board, State state, Piece winner) {
+		fowardNotification(new GameOverResponse(board, state, winner));
+		this.stop();
 	}
 
 	@Override
 	public void onMoveStart(Board board, Piece turn) {
+		fowardNotification(new MoveStartResponse(board, turn));
 	}
 
 	@Override
 	public void onMoveEnd(Board board, Piece turn, boolean success) {
+		fowardNotification(new MoveEndResponse(board, turn, success));
 	}
 
 	@Override
 	public void onChangeTurn(Board board, Piece turn) {
+		fowardNotification(new ChangeTurnResponse(board, turn));
 	}
 
 	@Override
 	public void onError(String msg) {
+		fowardNotification(new ErrorResponse(msg));
 	}
 
 }

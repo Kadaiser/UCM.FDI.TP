@@ -13,6 +13,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import es.ucm.fdi.tp.practica5.attt.AdvancedTTTFactoryExt;
+import es.ucm.fdi.tp.Practica6.server.GameServer;
 import es.ucm.fdi.tp.basecode.bgame.control.ConsoleCtrl;
 import es.ucm.fdi.tp.basecode.bgame.control.ConsoleCtrlMVC;
 import es.ucm.fdi.tp.basecode.bgame.control.Controller;
@@ -1162,17 +1163,14 @@ public class Main {
 	 * 
 	 */
 	private static void startServer() {
-		/*
-		Game g = new Game(gameFactory.gameRules()); 
-		GameSever c = new GameServer(g ,pieces, serverPort);
+		
+		GameServer c = new GameServer(gameFactory ,pieces, serverPort);
 		
 		try{
 			c.start();
 		}catch(Exception e){
 			System.err.println("Something goes wrong, the server can´t start");
 		}
-		*/
-		throw new UnsupportedOperationException("The server isn´t working yet");
 	}
 
 	/**
