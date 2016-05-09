@@ -90,6 +90,7 @@ public class GameServer extends Controller implements GameObserver {
 	 * <p>Referencia del servidor</p>
 	 */
 	volatile private ServerSocket server;
+	
 	/**
 	 * <b>stopped</b>
 	 * <p>Valor de estado "encendido/apagado" del servidor</p>
@@ -251,17 +252,17 @@ public class GameServer extends Controller implements GameObserver {
 		this.server = new ServerSocket(port);
 		this.stopped = false;
 		
+		
+		/*
+		 * El bucle del servidor: esperar a que un cliente conecete y pasar el socket correspondiente a handle Request para resonder a la peticion
+		 */
 		while(!this.stopped){
 			try{
-				/*
-				 * El bucle del servidor: esperar a que un cliente conecete y pasar el socket correspondiente a handle Request para resonder a la peticion
-				 */
-				
 				//accept a connection into a socket s
-				Socket s = new Socket();
+				Socket s = this.server.accept();
 				
 				//log a corresponding message
-				this.log("something");
+				this.log("client trying to connect from port " + s.getPort());
 				//call handleRequest(s) to handle the request
 				this.handleRequest(s);
 			}catch(IOException | ClassNotFoundException e ){
@@ -290,23 +291,32 @@ public class GameServer extends Controller implements GameObserver {
 		/*
 		 * Limitar los intentos de conexiones por encima del umbral de jugadores 
 		 */
-		if(this.numOfConnectedPlayers > gameFactory.gameRules().maxPlayers()){
+		if(this.numOfConnectedPlayers > this.pieces.size()){
 			c.sendObject(new GameError("Maximum players connections reached"));
-		/*
-		 * Incrementar el numero de clientes conectados
-		 * y añadir "c" a la lista de clientes
-		 */
-		this.numOfConnectedPlayers++;
-		this.clients.add(c);
+
+		}else{
+			/*
+			 * Incrementar el numero de clientes conectados
+			 * y añadir "c" a la lista de clientes
+			 */
+			this.clients.add(c);
+			this.numOfConnectedPlayers++;
 		}
+		
 		/*
 		 * Enviar String "OK" al cliente, el gameFactory y la pieza
 		 * de la lista pieces en su posicion i-esima
 		 */
+		c.sendObject("OK");
+		c.sendObject(this.gameFactory);
+		c.sendObject(this.pieces.get(numOfConnectedPlayers -1));
 		
 		/*
 		 * Si se cumple con el numero de jugadores se inicia la partida
 		 */
+		if(this.numOfConnectedPlayers==this.numPlayers){
+			this.start();
+		}
 		
 		/*
 		 * Invocar al startClientListener para iniciar una hebra para 
@@ -332,7 +342,7 @@ public class GameServer extends Controller implements GameObserver {
 	t.start();
 	
 	while(!stopped && !gameOver){}
-		//leer el comadno
+		//leer el comandno
 		Command cmd = (Command) c;
 		//ejecutar el comando
 		cmd.execute(this);

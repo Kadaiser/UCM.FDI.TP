@@ -5,6 +5,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import es.ucm.fdi.tp.basecode.bgame.control.GameFactory;
+import es.ucm.fdi.tp.basecode.bgame.model.GameError;
+import es.ucm.fdi.tp.basecode.bgame.model.Piece;
+
 /**
  * Buffer de comunicacion
  * @author Kadaiser
@@ -32,6 +36,8 @@ public class Connection {
 	 * <b>sendObject</b>
 	 * <p>Procedimeinto de envio de objetos</p>
 	 * @param r
+	 * @param piece 
+	 * @param gameFactory 
 	 * @throws IOException
 	 */
 	public void sendObject(Object r) throws IOException{
@@ -59,5 +65,17 @@ public class Connection {
 	 */
 	public void stop() throws IOException{
 		this.socket.close();
+	}
+
+	public void sendObject(GameError gameError) {
+		try {
+			out.writeObject(gameError);
+			out.flush();
+			out.reset();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }
