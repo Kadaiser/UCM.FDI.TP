@@ -10,14 +10,17 @@ public class MoveStartResponse implements Response {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private Board board;
+	private Piece turn;
 
 	public MoveStartResponse(Board board, Piece turn) {
-		// TODO Auto-generated constructor stub
+		this.board = board;
+		this.turn = turn;
 	}
 
 	@Override
 	public void rum(GameObserver o) {
-		// TODO Auto-generated method stub
+		o.onMoveStart(board, turn);
 
 	}
 

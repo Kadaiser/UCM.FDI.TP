@@ -8,14 +8,15 @@ public class ErrorResponse implements Response {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private String msg;
 
 	public ErrorResponse(String msg) {
-		// TODO Auto-generated constructor stub
+		this.msg = msg;
 	}
 
 	@Override
 	public void rum(GameObserver o) {
-		// TODO Auto-generated method stub
+		o.onError(msg);
 
 	}
 

@@ -12,15 +12,22 @@ public class GameStartResponse implements Response {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private Board board;
+	private String gameDesc;
+	private List<Piece> pieces;
+	private Piece turn;
 
 
 	public GameStartResponse(Board board, String gameDesc, List<Piece> pieces, Piece turn) {
-		// TODO Auto-generated constructor stub
+		this.board = board;
+		this.gameDesc = gameDesc;
+		this.pieces = pieces;
+		this.turn = turn;
 	}
 
 	@Override
 	public void rum(GameObserver o) {
-		// TODO Auto-generated method stub
+		o.onGameStart(board, gameDesc, pieces, turn);
 
 	}
 

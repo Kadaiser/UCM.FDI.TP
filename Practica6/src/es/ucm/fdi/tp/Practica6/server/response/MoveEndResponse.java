@@ -10,14 +10,19 @@ public class MoveEndResponse implements Response {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private Board board;
+	private Piece turn;
+	private boolean success;
 
 	public MoveEndResponse(Board board, Piece turn, boolean success) {
-		// TODO Auto-generated constructor stub
+		this.board = board;
+		this.turn = turn;
+		this.success = success;
 	}
 
 	@Override
 	public void rum(GameObserver o) {
-		// TODO Auto-generated method stub
+		o.onMoveEnd(board, turn, success);
 
 	}
 
