@@ -1,5 +1,7 @@
 package es.ucm.fdi.tp.practica5.attt;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.swing.SwingUtilities;
 
 import es.ucm.fdi.tp.basecode.attt.AdvancedTTTFactory;
@@ -28,12 +30,25 @@ public class AdvancedTTTFactoryExt extends AdvancedTTTFactory {
 	
 	@Override
 	public void createSwingView(Observable<GameObserver> game, Controller ctrl, Piece viewPiece, Player randPlayer, Player aiPlayer) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				new AdvancedTTTSwingView(game, ctrl, viewPiece, randPlayer, aiPlayer);
-				}
-			});
+		
+		/*
+		 * Cambiamos de invokeAndWait en lugar de invokeLater asegurandonos asi de que la vista ya se ha
+		 * registrado co,o observador en GameClient antes de llamar a c.start();
+		 * Si en la implementacion hay otros componentes de la vista que se registran como
+		 * observadores del modelo, eliminar lis invoke... y llamar directamente al addObserver
+		 */
+		//SwingUtilities.invokeLater(new Runnable() {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					new AdvancedTTTSwingView(game, ctrl, viewPiece, randPlayer, aiPlayer);
+					}
+				});
+		} catch (InvocationTargetException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

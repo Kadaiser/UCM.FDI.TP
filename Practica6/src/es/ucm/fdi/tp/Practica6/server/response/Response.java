@@ -4,8 +4,12 @@ import java.io.Serializable;
 
 import es.ucm.fdi.tp.basecode.bgame.model.GameObserver;
 
+/**
+ * @author Kadaiser
+ *
+ */
 public interface Response extends Serializable{
-	public void rum(GameObserver o);
+	public void run(GameObserver o);
 	
 
 }

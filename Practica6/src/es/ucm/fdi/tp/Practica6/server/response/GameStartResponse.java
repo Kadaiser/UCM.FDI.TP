@@ -26,7 +26,7 @@ public class GameStartResponse implements Response {
 	}
 
 	@Override
-	public void rum(GameObserver o) {
+	public void run(GameObserver o) {
 		o.onGameStart(board, gameDesc, pieces, turn);
 
 	}

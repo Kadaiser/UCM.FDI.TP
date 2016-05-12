@@ -15,7 +15,7 @@ public class ErrorResponse implements Response {
 	}
 
 	@Override
-	public void rum(GameObserver o) {
+	public void run(GameObserver o) {
 		o.onError(msg);
 
 	}

@@ -19,9 +19,8 @@ public class ChangeTurnResponse implements Response {
 	}
 
 	@Override
-	public void rum(GameObserver o) {
+	public void run(GameObserver o) {
 		o.onChangeTurn(board, turn);
-
 	}
 
 }

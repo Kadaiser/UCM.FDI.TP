@@ -13,6 +13,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import es.ucm.fdi.tp.practica5.attt.AdvancedTTTFactoryExt;
+import es.ucm.fdi.tp.Practica6.client.GameClient;
 import es.ucm.fdi.tp.Practica6.server.GameServer;
 import es.ucm.fdi.tp.basecode.bgame.control.ConsoleCtrl;
 import es.ucm.fdi.tp.basecode.bgame.control.ConsoleCtrlMVC;
@@ -192,7 +193,7 @@ public class Main {
 	
 // -------------------------------------------SERVER HOST-----------------------------------------------//
 	/**
-	 * Number of server port provided with the option -sp (
+	 * Number of server port provided with the option -sh (
 	 * {@link #DEFAULT_SERVER_PORT} if not provided).
 	 * 
 	 * <p>
@@ -1185,15 +1186,25 @@ public class Main {
 	 * 
 	 */
 	private static void startClient() {
-		throw new UnsupportedOperationException("The client isn´t working yet");
-		/*
-		 * try{ GameClient c = new GameClient(serverHost, serverPort);
-		 * gameFactory = c.getGameFactory(); gameFactory.createSwingView(c, c,
-		 * c.getPlayerPiece(), gameFactory.createRandomPlayer(),
-		 * gameFactory.createAIPlayer(aiPlayerAlg)); c.start(); }catch(Exception
-		 * e){ System.err.println("Something goes wrong, the client can´t start"
-		 * ); }
-		 */
+		//throw new UnsupportedOperationException("The client isn´t working yet");
+		
+		  try{ 
+			  GameClient c = new GameClient(serverHost, serverPort);
+			 
+			  /*
+			   *Usamos el GameFactory enviado por el servidor para crear la vista. El cliente
+			   *ignora a que juego va a jugar 
+			   */
+			  gameFactory = c.getGameFactoty();
+			  /*
+			   * La vista ve el GameClient como un controlador y como el modelo, la ficha sera asignada por el servidor al cliente
+			   */
+			  gameFactory.createSwingView(c, c, c.getPlayerPiece(), gameFactory.createRandomPlayer(),gameFactory.createAIPlayer(aiPlayerAlg)); 
+			  c.start(); 
+			  }catch(Exception e){ 
+				  System.err.println("Something goes wrong, the client can´t start"
+		 ); }
+		 
 	}
 
 // -------------------------------------------MAIN-----------------------------------------------//

@@ -246,14 +246,15 @@ public abstract class SwingView extends JFrame implements GameObserver{
 		this.aiPlayer = aiPlayer;
 		this.pieceColors = new HashMap<Piece, Color>();
 		this.playersModes = new HashMap<Piece, PlayerMode>();
-
+/*
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				game.addObserver(SwingView.this);
 			}
 		});
-
+*/
+		game.addObserver(SwingView.this);
 		initGUI();
 	}
 	

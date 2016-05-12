@@ -49,7 +49,7 @@ public class GameServer extends Controller implements GameObserver {
 	
 	/**
 	 * <b>numPlayers</b>
-	 * <p>numero de jugadores miminos necesario para desarrollar el juego</p>
+	 * <p>numero de jugadores necesarios para desarrollar el juego</p>
 	 */
 	private int numPlayers;
 	
@@ -157,6 +157,8 @@ public class GameServer extends Controller implements GameObserver {
 	/**
 	 * <b>controlGUI</b>
 	 * <p>Procedimiento de inicializacion de la interfaz de servidor</p>
+	 * <p>El uso de invokeAndWait nos permite utilizar correctamente el metodo "log"
+	 * para añadir mensajes,etc</p>
 	 */
 	private void controlGUI() {
 		try{
@@ -258,6 +260,7 @@ public class GameServer extends Controller implements GameObserver {
 		 */
 		while(!this.stopped){
 			try{
+				this.log("Server started to listen clients");
 				//accept a connection into a socket s
 				Socket s = this.server.accept();
 				
@@ -291,8 +294,10 @@ public class GameServer extends Controller implements GameObserver {
 		/*
 		 * Limitar los intentos de conexiones por encima del umbral de jugadores 
 		 */
-		if(this.numOfConnectedPlayers > this.pieces.size()){
+		if(this.numOfConnectedPlayers >= this.numPlayers){
 			c.sendObject(new GameError("Maximum players connections reached"));
+			c.stop();
+			return;
 
 		}else{
 			/*
@@ -304,17 +309,17 @@ public class GameServer extends Controller implements GameObserver {
 		}
 		
 		/*
-		 * Enviar String "OK" al cliente, el gameFactory y la pieza
+		 * Enviar String "ok" al cliente, el gameFactory y la pieza
 		 * de la lista pieces en su posicion i-esima
 		 */
-		c.sendObject("OK");
+		c.sendObject("ok");
 		c.sendObject(this.gameFactory);
 		c.sendObject(this.pieces.get(numOfConnectedPlayers -1));
 		
 		/*
 		 * Si se cumple con el numero de jugadores se inicia la partida
 		 */
-		if(this.numOfConnectedPlayers==this.numPlayers){
+		if(this.numOfConnectedPlayers == this.numPlayers){
 			this.start();
 		}
 		
@@ -323,36 +328,50 @@ public class GameServer extends Controller implements GameObserver {
 		 * recibir comandos del cliente
 		 */
 		startClientListener(c);
+		
 		}catch(IOException | ClassNotFoundException _e){}
 	}
 
 	/**
-	 * 
-	 * @param c
+	 * <b>startClientListener</b>
+	 * <p>Procedimiento de recepcion de comandos del cliente</p>
+	 * @param c connexion entre el cliente y servidor, contiene el sokect y los canlaes de envio del mismo
 	 */
 	private void startClientListener(Connection c) {
+		//Juego no terminado
 	this.gameOver = false;
 	
-	Thread t = new Thread();
-	
 	/*
-	 * Iniciar una hebra para ejecutar el bucle mientras no haya terminado el juego
-	 * ni que el servidor se haya parado
+	 * Hebra de ejecucion del bucle mientras el juego no haya terminado, o el servidor haya parado.
 	 */
+	Thread t = new Thread();
 	t.start();
 	
-	while(!stopped && !gameOver){}
-		//leer el comandno
-		Command cmd = (Command) c;
-		//ejecutar el comando
-		cmd.execute(this);
+	/*
+	 * Manetenemos la hebra mientras no termine el juego o se pare el servidor 
+	 */
+	while(!stopped && !gameOver){
+		//try{
+		Command cmd = (Command) c; //leer el comandno
+		cmd.execute(this);	//ejecutar el comando
+		//}catch(ClassNotFoundException | IOException e){
+			//if(!stoped && !gameover)
+				//stopTheGame();	//(not the server)
+		//}
+	}
 }
 
 //------------------------------------------OBSERVABLE EVENTS--------------------------------------//
 
 
 	void fowardNotification (Response r){
-		//call c.sendObject(r) para cada conexion de cliente
+		try {
+			for (Connection c : clients) {
+			c.sendObject(r);
+			}
+			} catch (IOException e) {
+			//stopTheGame();
+			}
 	}
 	
 	@Override
@@ -363,7 +382,7 @@ public class GameServer extends Controller implements GameObserver {
 	@Override
 	public void onGameOver(Board board, State state, Piece winner) {
 		fowardNotification(new GameOverResponse(board, state, winner));
-		this.stop();
+		//stopTheGame();
 	}
 
 	@Override

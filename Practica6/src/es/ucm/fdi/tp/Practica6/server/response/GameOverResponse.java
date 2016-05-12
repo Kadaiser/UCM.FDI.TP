@@ -22,7 +22,7 @@ public class GameOverResponse implements Response {
 	}
 
 	@Override
-	public void rum(GameObserver o) {
+	public void run(GameObserver o) {
 		o.onGameOver(board, state, winner);
 
 	}

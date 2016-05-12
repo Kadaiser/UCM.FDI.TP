@@ -21,7 +21,7 @@ public class MoveEndResponse implements Response {
 	}
 
 	@Override
-	public void rum(GameObserver o) {
+	public void run(GameObserver o) {
 		o.onMoveEnd(board, turn, success);
 
 	}

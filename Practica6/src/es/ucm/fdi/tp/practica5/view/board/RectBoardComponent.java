@@ -51,13 +51,15 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 	public RectBoardComponent(final Observable<GameObserver> game, Board board){
 		this.board = board;
 		initGUI();
-		
+	/*	
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				game.addObserver(RectBoardComponent.this);
 			}
 		});
+		*/
+		game.addObserver(RectBoardComponent.this);
 	}
 	
 	
