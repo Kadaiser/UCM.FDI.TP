@@ -47,6 +47,20 @@ public class Connection {
 	}
 	
 	/**
+	 * <b>sendException</b>
+	 * <p>Procedimeinto de envio de objetos</p>
+	 * @param e
+	 * @param piece 
+	 * @param gameFactory 
+	 * @throws IOException
+	 */
+	public void sendException(Exception e) throws IOException{
+		out.writeObject(e);
+		out.flush();
+		out.reset();
+	}
+	
+	/**
 	 * <b>getObject</b>
 	 * <p>Procedimiento de recepcion de objetos</p>
 	 * @return

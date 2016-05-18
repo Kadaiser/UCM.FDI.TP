@@ -243,6 +243,25 @@ public class GameServer extends Controller implements GameObserver {
 			}			
 		});
 	}
+	/**
+	 * <b>logPlayers</b>
+	 * <p> Component process for the info game server </p>
+	 * <p> Procedimiento de insercion de mensajes en el area de texto</p> 
+	 * @param message to show in the tex area
+	 */
+	private void logPlayers(String message){
+		SwingUtilities.invokeLater(new Runnable(){
+
+			@Override
+			public void run() {
+				try {
+					infoPlayersArea.append(message + System.getProperty("line.separator"));
+				} catch (NullPointerException e) {
+					infoPlayersArea.setText("null");
+				}
+			}			
+		});
+	}
 	
 	
 	/**
@@ -253,30 +272,34 @@ public class GameServer extends Controller implements GameObserver {
 	private void startServer() throws IOException {
 		this.server = new ServerSocket(port);
 		this.stopped = false;
-		
+		this.log("Server started to listen clients");
+		this.log(this.numPlayers + " players to go.");
 		
 		/*
 		 * El bucle del servidor: esperar a que un cliente conecete y pasar el socket correspondiente a handle Request para resonder a la peticion
 		 */
 		while(!this.stopped){
 			try{
-				this.log("Server started to listen clients");
 				//accept a connection into a socket s
 				Socket s = this.server.accept();
 				
 				//log a corresponding message
 				this.log("client trying to connect from port " + s.getPort());
-				//call handleRequest(s) to handle the request
-				this.handleRequest(s);
+				this.logPlayers(this.pieces.get(this.numOfConnectedPlayers).toString());
+				//call handleRequest(s) to handle the request in a thread per client
+				handleRequest(s);
 			}catch(IOException | ClassNotFoundException e ){
 				if (!this.stopped)
 					this.log("Error while waiting for a connection: " + e.getMessage());
 			}
 		}
+		//this.server.close();
 	}
 
+
 /**
- * 
+ * <b>handleRequest</b>
+ * <p>Manejador de la peticion de conexion</p>
  * @param s
  * @throws IOException
  * @throws ClassNotFoundException
@@ -297,31 +320,36 @@ public class GameServer extends Controller implements GameObserver {
 		if(this.numOfConnectedPlayers >= this.numPlayers){
 			c.sendObject(new GameError("Maximum players connections reached"));
 			c.stop();
+			this.log("A client connection was refused: Maximum players connections reached ");
 			return;
 
 		}else{
-			/*
-			 * Incrementar el numero de clientes conectados
-			 * y añadir "c" a la lista de clientes
-			 */
-			this.clients.add(c);
-			this.numOfConnectedPlayers++;
+			
+				/*
+				 * Incrementar el numero de clientes conectados
+				 * y añadir "c" a la lista de clientes
+				 */
+				this.clients.add(c);
+				this.numOfConnectedPlayers++;
+				this.log(this.numPlayers - (this.numOfConnectedPlayers) + " players to go.");
 		}
-		
+				/*
+				 * Enviar String "ok" al cliente, el gameFactory y la pieza
+				 * de la lista pieces en su posicion i-esima
+				 */
+				c.sendObject("ok");
+				c.sendObject(this.gameFactory);
+				c.sendObject(this.pieces.get(numOfConnectedPlayers-1));
+					this.log((String) c.getObject());
+					
 		/*
-		 * Enviar String "ok" al cliente, el gameFactory y la pieza
-		 * de la lista pieces en su posicion i-esima
+		 * Si se cumple con el numero de jugadores necesarios se inicia la partida
 		 */
-		c.sendObject("ok");
-		c.sendObject(this.gameFactory);
-		c.sendObject(this.pieces.get(numOfConnectedPlayers -1));
+			if(this.numOfConnectedPlayers == this.numPlayers){
+				this.log( "players ready. Starting game...");
+				game.start(pieces);
+			}
 		
-		/*
-		 * Si se cumple con el numero de jugadores se inicia la partida
-		 */
-		if(this.numOfConnectedPlayers == this.numPlayers){
-			this.start();
-		}
 		
 		/*
 		 * Invocar al startClientListener para iniciar una hebra para 
@@ -335,30 +363,37 @@ public class GameServer extends Controller implements GameObserver {
 	/**
 	 * <b>startClientListener</b>
 	 * <p>Procedimiento de recepcion de comandos del cliente</p>
-	 * @param c connexion entre el cliente y servidor, contiene el sokect y los canlaes de envio del mismo
+	 * @param c connexion entre el cliente y servidor, contiene el sokect y los canales de envio del mismo
 	 */
 	private void startClientListener(Connection c) {
-		//Juego no terminado
-	this.gameOver = false;
+		this.gameOver = false;
+		
+		/*
+		 * Hebra de ejecucion del bucle mientras el juego no haya terminado, o el servidor haya parado.
+		 */
+		Thread t = new Thread(new Runnable(){
 	
-	/*
-	 * Hebra de ejecucion del bucle mientras el juego no haya terminado, o el servidor haya parado.
-	 */
-	Thread t = new Thread();
-	t.start();
+			@Override
+			public void run() {
+				/*
+				 * Manetenemos la hebra mientras no termine el juego o se pare el servidor 
+				 */
+				while(!stopped && !gameOver){
+					Command cmd;
+					try {
+						cmd = (Command) c.getObject();
+						cmd.execute(GameServer.this);	//ejecutar el comando
+					} catch (ClassNotFoundException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} //leer el comandno
+				}
+				
+			}
+			
+		});
+		t.start();
 	
-	/*
-	 * Manetenemos la hebra mientras no termine el juego o se pare el servidor 
-	 */
-	while(!stopped && !gameOver){
-		//try{
-		Command cmd = (Command) c; //leer el comandno
-		cmd.execute(this);	//ejecutar el comando
-		//}catch(ClassNotFoundException | IOException e){
-			//if(!stoped && !gameover)
-				//stopTheGame();	//(not the server)
-		//}
-	}
 }
 
 //------------------------------------------OBSERVABLE EVENTS--------------------------------------//

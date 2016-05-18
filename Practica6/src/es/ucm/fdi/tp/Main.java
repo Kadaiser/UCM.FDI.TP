@@ -1166,12 +1166,7 @@ public class Main {
 	private static void startServer() {
 		
 		GameServer c = new GameServer(gameFactory ,pieces, serverPort);
-		
-		try{
-			c.start();
-		}catch(Exception e){
-			System.err.println("Something goes wrong, the server can´t start");
-		}
+		c.start();
 	}
 
 	/**
@@ -1186,7 +1181,6 @@ public class Main {
 	 * 
 	 */
 	private static void startClient() {
-		//throw new UnsupportedOperationException("The client isn´t working yet");
 		
 		  try{ 
 			  GameClient c = new GameClient(serverHost, serverPort);
@@ -1202,7 +1196,7 @@ public class Main {
 			  gameFactory.createSwingView(c, c, c.getPlayerPiece(), gameFactory.createRandomPlayer(),gameFactory.createAIPlayer(aiPlayerAlg)); 
 			  c.start(); 
 			  }catch(Exception e){ 
-				  System.err.println("Something goes wrong, the client can´t start"
+				  System.err.println("Something goes wrong, the client can´t start :" + e.getMessage()
 		 ); }
 		 
 	}

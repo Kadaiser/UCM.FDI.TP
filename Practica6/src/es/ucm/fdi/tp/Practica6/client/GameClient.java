@@ -3,6 +3,7 @@ package es.ucm.fdi.tp.Practica6.client;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 import es.ucm.fdi.tp.Practica6.buffer.Connection;
@@ -14,6 +15,8 @@ import es.ucm.fdi.tp.basecode.bgame.control.commands.Command;
 import es.ucm.fdi.tp.basecode.bgame.control.commands.PlayCommand;
 import es.ucm.fdi.tp.basecode.bgame.control.commands.QuitCommand;
 import es.ucm.fdi.tp.basecode.bgame.control.commands.RestartCommand;
+import es.ucm.fdi.tp.basecode.bgame.model.Board;
+import es.ucm.fdi.tp.basecode.bgame.model.Game.State;
 import es.ucm.fdi.tp.basecode.bgame.model.GameError;
 import es.ucm.fdi.tp.basecode.bgame.model.GameObserver;
 import es.ucm.fdi.tp.basecode.bgame.model.Observable;
@@ -83,6 +86,7 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 		super(null, null);
 		this.host = serverHost;
 		this.port = serverPort;
+		this.observers = new ArrayList<>();
 		try {
 			connect();
 		} catch (Exception e) {
@@ -95,8 +99,7 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 	 * @throws Exception 
 	 */
 	private void connect() throws Exception {
-			Socket s = new Socket(this.host,this.port);
-			this.connectionToServer = new Connection(s);
+			this.connectionToServer = new Connection(new Socket(this.host,this.port));
 			this.connectionToServer.sendObject(new String("Connect"));
 			
 			Object response = this.connectionToServer.getObject(); //1er mensaje del servidor DEBE ser string "ok"
@@ -107,6 +110,7 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 				try{
 					this.gameFactory = (GameFactory) this.connectionToServer.getObject();
 					this.localPiece = (Piece) this.connectionToServer.getObject();
+					this.connectionToServer.sendObject(new String ("Client recieve game parametres for " + this.gameFactory.toString() +" the piece set for this client is : " + this.localPiece.toString()));
 				}catch(Exception e){
 					throw new GameError("Unknown server response: " + e.getMessage());
 				}
@@ -119,7 +123,7 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 	 * @return gameFactory indicated by server connection</p>
 	 */
 	public GameFactory getGameFactoty() {
-		return gameFactory;
+		return this.gameFactory;
 	}
 
 	/**
@@ -128,7 +132,7 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 	 * @return localpiece of this view
 	 */
 	public Piece getPlayerPiece() {
-		return localPiece;
+		return this.localPiece;
 	}
 
 
@@ -145,14 +149,42 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 	
 	
 	public void start(){
-		this.observers.add(null);
+		this.observers.add(new GameObserver(){
+
+			@Override
+			public void onGameStart(Board board, String gameDesc, List<Piece> pieces, Piece turn) {
+			}
+
+			@Override
+			public void onGameOver(Board board, State state, Piece winner) {
+				gameOver = true;
+				
+			}
+
+			@Override
+			public void onMoveStart(Board board, Piece turn) {
+	
+			}
+
+			@Override
+			public void onMoveEnd(Board board, Piece turn, boolean success) {
+			}
+
+			@Override
+			public void onChangeTurn(Board board, Piece turn) {	
+			}
+
+			@Override
+			public void onError(String msg) {
+			}
+		});
+		
 		gameOver = false;
 		
 		while(!gameOver){
 			try{
 				Response response = (Response) this.connectionToServer.getObject();
 				for(GameObserver o : observers){
-					//execute the response on the observer o
 					response.run(o);
 				}
 			}catch(IOException | ClassNotFoundException e){}
