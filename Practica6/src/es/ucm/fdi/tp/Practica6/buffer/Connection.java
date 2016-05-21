@@ -80,5 +80,14 @@ public class Connection {
 	public void stop() throws IOException{
 		this.socket.close();
 	}
+	
+	/**
+	 * <b>getPort</b>
+	 * <p>Consulta de valor del puerto para una conexion</p>
+	 * @return int with port number
+	 */
+	public int getPort(){
+		return this.socket.getPort();
+	}
 
 }

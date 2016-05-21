@@ -293,7 +293,8 @@ public class GameServer extends Controller implements GameObserver {
 					this.log("Error while waiting for a connection: " + e.getMessage());
 			}
 		}
-		//this.server.close();
+		this.log("The server is going to restart");
+		this.stop();
 	}
 
 
@@ -384,9 +385,11 @@ public class GameServer extends Controller implements GameObserver {
 						cmd = (Command) c.getObject();
 						cmd.execute(GameServer.this);	//ejecutar el comando
 					} catch (ClassNotFoundException | IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} //leer el comandno
+						if(!stopped && !gameOver){
+							stopTheGame();							
+						}
+						//e.printStackTrace();
+					} 
 				}
 				
 			}
@@ -395,6 +398,32 @@ public class GameServer extends Controller implements GameObserver {
 		t.start();
 	
 }
+	
+	private void stopTheGame(){
+		if(this.game.getState().equals(State.InPlay)){
+			this.game.stop();
+		}
+		//this.stop();
+		for (Connection c : this.clients)
+			try {
+				c.stop();
+				this.log("the connection with client in port (" + c.getPort() +")have been closed");
+				this.numOfConnectedPlayers--;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	}
+	
+	private void stopTheServer(){
+		this.stopped = true;
+		this.stopTheGame();
+		try {
+			this.server.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 //------------------------------------------OBSERVABLE EVENTS--------------------------------------//
 
@@ -402,10 +431,10 @@ public class GameServer extends Controller implements GameObserver {
 	void fowardNotification (Response r){
 		try {
 			for (Connection c : clients) {
-			c.sendObject(r);
+				c.sendObject(r);
 			}
 			} catch (IOException e) {
-			//stopTheGame();
+				//stopTheGame();
 			}
 	}
 	
@@ -416,8 +445,9 @@ public class GameServer extends Controller implements GameObserver {
 
 	@Override
 	public void onGameOver(Board board, State state, Piece winner) {
+		this.log("Play have finished. Closing all conections");
 		fowardNotification(new GameOverResponse(board, state, winner));
-		//stopTheGame();
+		this.stopTheGame();
 	}
 
 	@Override
