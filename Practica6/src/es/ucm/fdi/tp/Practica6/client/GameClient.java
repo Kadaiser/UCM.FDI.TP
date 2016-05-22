@@ -74,14 +74,12 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 	private boolean gameOver;
 
 	/**
-	 * Constructor de la clase GameClient
-	 * @param game
-	 * @param pieces
+	 * <b>Constructor de la clase GameClient</b>
+	 * @param serverHost
+	 * @param serverPort
 	 * @throws UnknownHostException
 	 * @throws IOException
 	 */
-
-	
 	public GameClient(String serverHost, Integer serverPort) throws UnknownHostException, IOException {
 		super(null, null);
 		this.host = serverHost;
@@ -139,7 +137,6 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 	@Override
 	public void addObserver(GameObserver o) {
 		this.observers.add(o);
-		//this.notify();
 	}
 
 	@Override
@@ -147,7 +144,10 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 		this.observers.remove(o);
 	}
 	
-	
+	/**
+	 * <b>start</b>
+	 * <p>Start the Client controller</p>
+	 */
 	public void start(){
 		this.observers.add(new GameObserver(){
 
@@ -158,7 +158,6 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 			@Override
 			public void onGameOver(Board board, State state, Piece winner) {
 				gameOver = true;
-				
 			}
 
 			@Override
@@ -206,6 +205,11 @@ public class GameClient extends Controller implements Observable<GameObserver> {
 		forwardCommand(new RestartCommand());
 	}
 
+	/**
+	 * <b>forwardCommand</b>
+	 * <p>Method for the client-server comunication via command</p>
+	 * @param cmd send to the server
+	 */
 	private void forwardCommand(Command cmd) {
 		// if the game is over do nothing, otherwise
 		if(!this.gameOver){

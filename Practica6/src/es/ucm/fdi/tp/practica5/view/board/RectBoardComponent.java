@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
-//import javax.swing.SwingUtilities;
-import javax.swing.SwingUtilities;
 
 import es.ucm.fdi.tp.basecode.bgame.model.Board;
 import es.ucm.fdi.tp.basecode.bgame.model.GameObserver;

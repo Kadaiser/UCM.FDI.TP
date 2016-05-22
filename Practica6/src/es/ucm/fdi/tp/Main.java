@@ -157,7 +157,7 @@ public class Main {
 	 * <p>
 	 * Puerto de escucha por defecto para el servidor.
 	 */
-	final private static Integer DEFAULT_SERVER_PORT = 9999;
+	final private static String DEFAULT_SERVER_PORT = "9999";
 
 	/**
 	 * Builds the server port (-sp or --server-port) CLI option.
@@ -179,7 +179,7 @@ public class Main {
 	 *            CLI {@link CommandLine} object.
 	 */
 	private static void parseServerPortOption(CommandLine line) throws ParseException {
-		String serverPortVal = line.getOptionValue("sp");
+		String serverPortVal = line.getOptionValue("sp", DEFAULT_SERVER_PORT);
 		serverPort = null;
 
 		if (serverPortVal != null) {

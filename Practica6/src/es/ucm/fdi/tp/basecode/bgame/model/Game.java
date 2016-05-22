@@ -26,7 +26,7 @@ public class Game implements Observable<GameObserver> {
 	 * <p>
 	 * Lista de observadores.
 	 */
-	private ArrayList<GameObserver> observers;
+	protected ArrayList<GameObserver> observers;
 
 	/**
 	 * The board used for the current game.
@@ -73,7 +73,7 @@ public class Game implements Observable<GameObserver> {
 	 * <p>
 	 * Las reglas del juego.
 	 */
-	private GameRules rules;
+	protected GameRules rules;
 
 	/**
 	 * The piece of the player with the current turn.
@@ -484,7 +484,7 @@ public class Game implements Observable<GameObserver> {
 	 * <p>
 	 * Notifica a los observadores que el juego ha terminado con un ganador.
 	 */
-	private void notifyWon() {
+	protected void notifyWon() {
 		for (GameObserver o : observers) {
 			o.onGameOver(roBoard, state, winner); // we pass a read only board
 		}
@@ -496,7 +496,7 @@ public class Game implements Observable<GameObserver> {
 	 * <p>
 	 * Notifica a los observadores que se va a ejecutar un movimiento.
 	 */
-	private void notifyStartMove() {
+	protected void notifyStartMove() {
 		for (GameObserver o : observers) {
 			o.onMoveStart(roBoard, turn); // we pass a read only board
 		}
@@ -516,7 +516,7 @@ public class Game implements Observable<GameObserver> {
 	 *            {@code true} si el movimiento ha terminado con exito,
 	 *            {@code false} en caso contrario.
 	 */
-	private void notifyEndMove(boolean success) {
+	protected void notifyEndMove(boolean success) {
 		for (GameObserver o : observers) {
 			o.onMoveEnd(roBoard, turn, success); // we pass a read only board
 		}
@@ -528,7 +528,7 @@ public class Game implements Observable<GameObserver> {
 	 * <p>
 	 * Notifica a los observadores que se ha interrumpido el juego.
 	 */
-	private void notifyStopped() {
+	protected void notifyStopped() {
 		for (GameObserver o : observers) {
 			o.onGameOver(roBoard, state, null); // we pass a read only board
 		}
@@ -540,7 +540,7 @@ public class Game implements Observable<GameObserver> {
 	 * <p>
 	 * Notifica a los observadores que ha cambiado el turno.
 	 */
-	private void notifyChangeTurn() {
+	protected void notifyChangeTurn() {
 		for (GameObserver o : observers) {
 			o.onChangeTurn(roBoard, turn); // we pass a read only board
 		}
@@ -554,7 +554,7 @@ public class Game implements Observable<GameObserver> {
 	 * Notifica a los observadores que ha ocurrido un error y lanza una
 	 * excepcion.
 	 */
-	private void notifyError(RuntimeException e) {
+	protected void notifyError(RuntimeException e) {
 		String msg = e.getLocalizedMessage();
 		for (GameObserver o : observers) {
 			o.onError(msg);

@@ -13,6 +13,12 @@ public class MoveStartResponse implements Response {
 	private Board board;
 	private Piece turn;
 
+	/**
+	 * <b>ChangeTurnResponse</b>
+	 * <p>Contructor de la respuesta enviada en el canal de comunicacion</p>
+	 * @param board of the game
+	 * @param turn owned
+	 */
 	public MoveStartResponse(Board board, Piece turn) {
 		this.board = board;
 		this.turn = turn;

@@ -14,6 +14,13 @@ public class MoveEndResponse implements Response {
 	private Piece turn;
 	private boolean success;
 
+	/**
+	 * <b>MoveEndResponse</b>
+	 * <p>Contructor de la respuesta enviada en el canal de comunicacion</p>
+	 * @param board of the game
+	 * @param turn owner
+	 * @param success boolean controller
+	 */
 	public MoveEndResponse(Board board, Piece turn, boolean success) {
 		this.board = board;
 		this.turn = turn;

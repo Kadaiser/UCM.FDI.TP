@@ -82,7 +82,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	
 	/**
 	 * <p>Used for recieve the reference of game modes for the list of pieces</p>
-	 * @return the players modes Map<Piece,Player> of this object
+	 * @return the players modes Map [Piece,Player] of this object
 	 */
 	public Map<Piece,PlayerMode> getPlayerModes(){
 		return this.playersModes;
@@ -98,7 +98,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	private Map<Piece,Color> pieceColors;
 	
 	/**
-	 * <b><getPieceColors/b>
+	 * <b><getPieceColors</b>
 	 * <p>Getter for the reference of the pieceColor attribute</p>
 	 * @return this pieceColors
 	 */
@@ -578,7 +578,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>automaticMovePanel</b>
 	 * <p>Panel contenedor del los botones para la ejecucion de movimientos automaticos</p>
-	 * <p>container panel buttons for the execution of automatic movements<p>
+	 * <p>container panel buttons for the execution of automatic movements</p>
 	 */
 	private JPanel automaticMovePanel;
 	
@@ -619,7 +619,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>exitPanel</b>
 	 * <p>Panel contenedor del los botones para salir o reiniciar el juego</p>
-	 * <p>container panel buttons for exit or restart the game<p>
+	 * <p>container panel buttons for exit or restart the game</p>
 	 */
 	private JPanel exitPanel;
 

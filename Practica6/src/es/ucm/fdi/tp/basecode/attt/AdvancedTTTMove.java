@@ -74,7 +74,7 @@ public class AdvancedTTTMove extends ConnectNMove {
 	public void execute(Board board, List<Piece> pieces) {
 		Piece p = getPiece();
 
-		if (board.getPieceCount(p) == 0 && board.getPosition(srcRow, srcCol) == p && (srcRow != row || srcCol != col)
+		if (board.getPieceCount(p) == 0 && p.equals(board.getPosition(srcRow, srcCol)) && (srcRow != row || srcCol != col)
 				&& board.getPosition(row, col) == null) {
 			board.setPosition(srcRow, srcCol, null);
 			board.setPosition(row, col, p);

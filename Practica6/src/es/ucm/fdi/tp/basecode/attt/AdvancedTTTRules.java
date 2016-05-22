@@ -48,7 +48,7 @@ public class AdvancedTTTRules extends TicTacToeRules {
 			// but on 3x3 board, max inner loops is ~ 3x9 = 27; not worth it
 			for (int i = 0; i < board.getRows(); i++) {
 				for (int j = 0; j < board.getCols(); j++) {
-					if (board.getPosition(i, j) == turn) {
+					if (turn.equals( board.getPosition(i, j) )) {
 						for (int x = 0; x < board.getRows(); x++) {
 							for (int y = 0; y < board.getCols(); y++) {
 								if (board.getPosition(x, y) == null) {

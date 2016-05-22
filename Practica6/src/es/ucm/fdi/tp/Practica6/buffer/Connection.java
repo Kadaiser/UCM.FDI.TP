@@ -63,7 +63,7 @@ public class Connection {
 	/**
 	 * <b>getObject</b>
 	 * <p>Procedimiento de recepcion de objetos</p>
-	 * @return
+	 * @return the object inside the package comunication
 	 * @throws IOException
 	 * @throws ClassNotFoundException 
 	 */

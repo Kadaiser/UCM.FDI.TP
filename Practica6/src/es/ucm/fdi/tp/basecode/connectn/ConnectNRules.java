@@ -89,7 +89,7 @@ public class ConnectNRules implements GameRules {
 			p = board.getPosition(i, 0);
 			if (p != null) {
 				j = 1;
-				while (j < dim && board.getPosition(i, j) == p)
+				while (j < dim && p.equals(board.getPosition(i, j)))
 					j++;
 				if (j == dim)
 					return new Pair<State, Piece>(State.Won, p);
@@ -99,7 +99,7 @@ public class ConnectNRules implements GameRules {
 			p = board.getPosition(0, i);
 			if (p != null) {
 				j = 1;
-				while (j < dim && board.getPosition(j, i) == p)
+				while (j < dim && p.equals(board.getPosition(j, i)))
 					j++;
 				if (j == dim)
 					return new Pair<State, Piece>(State.Won, p);
@@ -110,7 +110,7 @@ public class ConnectNRules implements GameRules {
 		p = board.getPosition(0, 0);
 		if (p != null) {
 			j = 1;
-			while (j < dim && board.getPosition(j, j) == p) {
+			while (j < dim && p.equals( board.getPosition(j, j) )) {
 				j++;
 			}
 			if (j == dim) {
@@ -122,7 +122,7 @@ public class ConnectNRules implements GameRules {
 		p = board.getPosition(dim - 1, 0);
 		if (p != null) {
 			j = 1;
-			while (j < dim && board.getPosition(dim - j - 1, j) == p) {
+			while (j < dim && p.equals( board.getPosition(dim - j - 1, j)) ) {
 				j++;
 			}
 			if (j == dim) {
@@ -181,8 +181,10 @@ public class ConnectNRules implements GameRules {
 	 * Compute the number of win-lines for p. A win-line is a row, column or a
 	 * diagonal that does not have a piece different from p.
 	 * 
-	 * @param board The game board.
-	 * @param p A piece whose win-lines we want to compute.
+	 * @param board
+	 *            The game board.
+	 * @param p
+	 *            A piece whose win-lines we want to compute.
 	 * @return
 	 */
 	private int possibleWinLines(Board board, Piece p) {

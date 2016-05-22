@@ -24,7 +24,6 @@ import es.ucm.fdi.tp.basecode.bgame.model.GameError;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
 import es.ucm.fdi.tp.basecode.connectn.ConnectNFactory;
 import es.ucm.fdi.tp.basecode.minmax.MinMax;
-//import es.ucm.fdi.tp.basecode.minmax.MinMax;
 import es.ucm.fdi.tp.basecode.ttt.TicTacToeFactory;
 
 /**

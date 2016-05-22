@@ -82,6 +82,12 @@ public class GameServer extends Controller implements GameObserver {
 	 * <p>Campo de informe de los jugadores conectados al servidor</p> 
 	 */
 	private TextArea infoPlayersArea;
+	
+	/**
+	 * <b>infoPlayersArea</b>
+	 * <p>Campo de informe de los jugadores conectados al servidor</p> 
+	 */
+	private  JFrame window;
 
 
 //---------------------------------------------ATRIBUTOS VOLATILE------------------------------------//
@@ -105,9 +111,9 @@ public class GameServer extends Controller implements GameObserver {
 	
 	
 	/**
-	 * 
-	 * @param game
-	 * @param pieces
+	 * <p>Constructor of the game server</p>
+	 * @param game controller of the server
+	 * @param pieces of players defined
 	 */
 	public GameServer(GameFactory gameFactory, List<Piece> pieces, int port) {
 		super(new Game(gameFactory.gameRules()), pieces);
@@ -145,6 +151,10 @@ public class GameServer extends Controller implements GameObserver {
 		}
 	}
 
+	/**
+	 * <b>start</b>
+	 * <p>Start the server, including the GUI controller and the server controller itself</p>
+	 */
 	public void start() {
 		controlGUI();
 		try {
@@ -179,8 +189,7 @@ public class GameServer extends Controller implements GameObserver {
 	 * <p>Procedimiento de construccion grafico de la interfaz de servidor</p>
 	 */
 	private void constructGraphicGUI(){
-		JFrame window = new JFrame("Game Server");
-		
+		this.window = new JFrame("Game Server");
 		
 		JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
 		JPanel StatusServerPanel = new JPanel(new BorderLayout(5, 5));
@@ -243,6 +252,7 @@ public class GameServer extends Controller implements GameObserver {
 			}			
 		});
 	}
+	
 	/**
 	 * <b>logPlayers</b>
 	 * <p> Component process for the info game server </p>
@@ -262,7 +272,6 @@ public class GameServer extends Controller implements GameObserver {
 			}			
 		});
 	}
-	
 	
 	/**
 	 * <b>startServer</b>
@@ -293,18 +302,16 @@ public class GameServer extends Controller implements GameObserver {
 					this.log("Error while waiting for a connection: " + e.getMessage());
 			}
 		}
-		this.log("The server is going to restart");
-		this.stop();
 	}
 
 
-/**
- * <b>handleRequest</b>
- * <p>Manejador de la peticion de conexion</p>
- * @param s
- * @throws IOException
- * @throws ClassNotFoundException
- */
+	/**
+	 * <b>handleRequest</b>
+	 * <p>Manejador de la peticion de conexion</p>
+	 * @param s
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	private void handleRequest(Socket s) throws IOException, ClassNotFoundException {
 		try{
 		Connection c = new Connection(s);
@@ -347,8 +354,11 @@ public class GameServer extends Controller implements GameObserver {
 		 * Si se cumple con el numero de jugadores necesarios se inicia la partida
 		 */
 			if(this.numOfConnectedPlayers == this.numPlayers){
-				this.log( "players ready. Starting game...");
-				game.start(pieces);
+				if(this.gameOver){
+					this.gameOver = false;
+					game.restart();
+				}else
+					game.start(pieces);
 			}
 		
 		
@@ -373,7 +383,7 @@ public class GameServer extends Controller implements GameObserver {
 		 * Hebra de ejecucion del bucle mientras el juego no haya terminado, o el servidor haya parado.
 		 */
 		Thread t = new Thread(new Runnable(){
-	
+
 			@Override
 			public void run() {
 				/*
@@ -383,13 +393,13 @@ public class GameServer extends Controller implements GameObserver {
 					Command cmd;
 					try {
 						cmd = (Command) c.getObject();
-						cmd.execute(GameServer.this);	//ejecutar el comando
+						cmd.execute(GameServer.this);
 					} catch (ClassNotFoundException | IOException e) {
 						if(!stopped && !gameOver){
-							stopTheGame();							
+							GameServer.this.stopTheGame();
 						}
-						//e.printStackTrace();
-					} 
+						log("Client Listener thread generate an exeption: " + e.getMessage());
+					}
 				}
 				
 			}
@@ -398,56 +408,61 @@ public class GameServer extends Controller implements GameObserver {
 		t.start();
 	
 }
-	
+	/**
+	 * <b>stopTheGame</b>
+	 * <p>Procedimiento de parada de partida, se cierran las conexiones y se limpian las listas de clientes./p>
+	 * 
+	 */
 	private void stopTheGame(){
+		this.gameOver = true;
 		if(this.game.getState().equals(State.InPlay)){
 			this.game.stop();
 		}
-		//this.stop();
 		for (Connection c : this.clients)
 			try {
 				c.stop();
-				this.log("the connection with client in port (" + c.getPort() +")have been closed");
+				this.log("the connection with client in port (" + c.getPort() +") have been closed");
 				this.numOfConnectedPlayers--;
 			} catch (IOException e) {
-				e.printStackTrace();
+				this.log("Stop the game generate an excetion :" + e.getMessage());
 			}
+		this.clients.clear();
+		this.infoPlayersArea.setText(null);
 	}
-	
-	private void stopTheServer(){
-		this.stopped = true;
-		this.stopTheGame();
-		try {
-			this.server.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 
 //------------------------------------------OBSERVABLE EVENTS--------------------------------------//
-
-
+	
+	/**
+	 * <b>fowardNotification</b>
+	 * <p>Send response method for the clients</p>
+	 * @param r object send to the clients
+	 */
 	void fowardNotification (Response r){
+		int port = -1;
 		try {
 			for (Connection c : clients) {
+				port = c.getPort();
 				c.sendObject(r);
 			}
 			} catch (IOException e) {
-				//stopTheGame();
+				this.log("Exception generated in client comunnication by port(" + port +") :" + e.getMessage());
+				stopTheGame();
 			}
 	}
 	
 	@Override
 	public void onGameStart(Board board, String gameDesc, List<Piece> pieces, Piece turn) {
+		this.log( "players ready. Starting game...");
 		fowardNotification(new GameStartResponse(board, gameDesc, pieces, turn));
 	}
 
 	@Override
 	public void onGameOver(Board board, State state, Piece winner) {
-		this.log("Play have finished. Closing all conections");
+		this.log("Game have finished. Reporting to clients");
 		fowardNotification(new GameOverResponse(board, state, winner));
+		this.log("Closing all conections");
 		this.stopTheGame();
+		
 	}
 
 	@Override
