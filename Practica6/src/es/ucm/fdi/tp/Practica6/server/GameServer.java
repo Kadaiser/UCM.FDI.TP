@@ -439,12 +439,16 @@ public class GameServer extends Controller implements GameObserver {
 		this.clients.clear();
 		this.infoPlayersArea.setText(null);
 	}
-	
+	/**
+	 * <b>stopTheServer</b>
+	 * <p>Procedimiento de parada de servidor. Cierra el servidor de conexiones, previas conexiones y juego /p>
+	 */
 	private void stopTheServer(){
 		this.stopped = false;
 		if(this.game.getState().equals(State.InPlay)){
 			this.game.stop();
 		}
+		stopTheGame();
 		try {
 			this.server.close();
 		} catch (IOException e) {
