@@ -88,6 +88,8 @@ public class GameServer extends Controller implements GameObserver {
 	 * <p>Campo de informe de los jugadores conectados al servidor</p> 
 	 */
 	private  JFrame window;
+	
+	private boolean firstRound = true;
 
 
 //---------------------------------------------ATRIBUTOS VOLATILE------------------------------------//
@@ -354,11 +356,11 @@ public class GameServer extends Controller implements GameObserver {
 		 * Si se cumple con el numero de jugadores necesarios se inicia la partida
 		 */
 			if(this.numOfConnectedPlayers == this.numPlayers){
-				if(this.gameOver){
-					this.gameOver = false;
-					game.restart();
-				}else
+				if(this.firstRound){
+					this.firstRound = false;
 					game.start(pieces);
+				}else
+					game.restart();
 			}
 		
 		
