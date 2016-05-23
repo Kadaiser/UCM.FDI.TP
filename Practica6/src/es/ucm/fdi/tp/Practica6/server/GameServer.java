@@ -89,6 +89,10 @@ public class GameServer extends Controller implements GameObserver {
 	 */
 	private  JFrame window;
 	
+	/**
+	 * <b>firstRound</b>
+	 * <p>boleano de control de primera ronda en el inicio de servidor, para el inicio/reset de partidas/p> 
+	 */
 	private boolean firstRound = true;
 
 
@@ -216,7 +220,7 @@ public class GameServer extends Controller implements GameObserver {
 				
 				if (n == 0) {
 					try {
-						stop();
+						stopTheServer();
 					} catch (GameError _e) {
 					}
 					window.setVisible(false);
@@ -358,8 +362,10 @@ public class GameServer extends Controller implements GameObserver {
 			if(this.numOfConnectedPlayers == this.numPlayers){
 				if(this.firstRound){
 					this.firstRound = false;
+					this.log( "players ready. Starting game...");
 					game.start(pieces);
 				}else
+					this.log( "players ready. Re-starting a new game...");
 					game.restart();
 			}
 		
@@ -399,6 +405,7 @@ public class GameServer extends Controller implements GameObserver {
 					} catch (ClassNotFoundException | IOException e) {
 						if(!stopped && !gameOver){
 							GameServer.this.stopTheGame();
+							log("Client Listener thread generate an exeption while runnig/inGame: " + e.getMessage());
 						}
 						log("Client Listener thread generate an exeption: " + e.getMessage());
 					}
@@ -431,6 +438,19 @@ public class GameServer extends Controller implements GameObserver {
 		this.clients.clear();
 		this.infoPlayersArea.setText(null);
 	}
+	
+	private void stopTheServer(){
+		this.stopped = false;
+		if(this.game.getState().equals(State.InPlay)){
+			this.game.stop();
+		}
+		try {
+			this.server.close();
+		} catch (IOException e) {
+			this.log("El servidor de conexiones genereo una excepcion: " + e.getMessage());
+		}
+		this.window.dispose();
+	}
 
 //------------------------------------------OBSERVABLE EVENTS--------------------------------------//
 	
@@ -454,7 +474,6 @@ public class GameServer extends Controller implements GameObserver {
 	
 	@Override
 	public void onGameStart(Board board, String gameDesc, List<Piece> pieces, Piece turn) {
-		this.log( "players ready. Starting game...");
 		fowardNotification(new GameStartResponse(board, gameDesc, pieces, turn));
 	}
 
