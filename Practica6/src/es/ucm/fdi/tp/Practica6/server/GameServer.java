@@ -367,6 +367,7 @@ public class GameServer extends Controller implements GameObserver {
 				}else
 					this.log( "players ready. Re-starting a new game...");
 					game.restart();
+					this.log(this.numPlayers + " players to go.");
 			}
 		
 		
