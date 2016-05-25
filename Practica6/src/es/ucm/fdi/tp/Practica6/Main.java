@@ -1,4 +1,4 @@
-package es.ucm.fdi.tp;
+package es.ucm.fdi.tp.Practica6;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +109,7 @@ public class Main {
 	 */
 	private static Option constructAplicationModeOption() {
 		String optionInfo = "The application mode to use ( ";
-		for (ViewInfo i : ViewInfo.values()) {
+		for (applicationModeInfo i : applicationModeInfo.values()) {
 			optionInfo += i.getId() + " [for " + i.getDesc() + "] ";
 		}
 		optionInfo += "). By defualt, " + DEFAULT_APPLICATION_MODE.getId() + ".";
@@ -157,7 +157,7 @@ public class Main {
 	 * <p>
 	 * Puerto de escucha por defecto para el servidor.
 	 */
-	final private static String DEFAULT_SERVER_PORT = "9999";
+	final private static String DEFAULT_SERVER_PORT = "2000";
 
 	/**
 	 * Builds the server port (-sp or --server-port) CLI option.
@@ -207,7 +207,7 @@ public class Main {
 	 * <p>
 	 * Puerto de escucha por defecto para el servidor.
 	 */
-	final private static String DEFAULT_SERVER_HOST = "192.168.1.10";
+	final private static String DEFAULT_SERVER_HOST = "localhost";
 	
 	/**
 	 * Builds the server host (-sh or --server-host) CLI option.
@@ -855,7 +855,7 @@ public class Main {
 	 */
 	enum GameInfo {
 		CONNECTN("cn", "ConnectN"), TicTacToe("ttt", "Tic-Tac-Toe"), AdvancedTicTacToe("attt",
-				"Advanced Tic-Tac-Toe"), Ataxx("at", "Ataxx");
+				"Advanced Tic-Tac-Toe"), Ataxx("ataxx", "Ataxx");
 
 		private String id;
 		private String desc;

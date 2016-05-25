@@ -167,6 +167,8 @@ public class GameServer extends Controller implements GameObserver {
 			startServer();
 		} catch (IOException e) {
 			this.log("Error starting a client connection: " + e.getMessage());
+			System.err.println("Error starting a client connection: " + e.getMessage());
+			System.exit(1);
 		}
 	}
 

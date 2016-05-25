@@ -41,9 +41,9 @@ public class Connection {
 	 * @throws IOException
 	 */
 	public void sendObject(Object r) throws IOException{
+		out.reset();
 		out.writeObject(r);
 		out.flush();
-		out.reset();
 	}
 	
 	/**

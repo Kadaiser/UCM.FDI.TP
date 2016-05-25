@@ -655,29 +655,31 @@ public abstract class SwingView extends JFrame implements GameObserver{
 
 		this.exitPanel.add(quit);
 
-		JButton restartButton = new JButton("Restart");
-		restartButton.setToolTipText("Reset the game to start a new play");
+		if(this.localPiece.equals(null)){
+			JButton restartButton = new JButton("Restart");
+			restartButton.setToolTipText("Reset the game to start a new play");
 
-		restartButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int n = JOptionPane.showOptionDialog(new JFrame(), "Are you sure you want to restart the game?",
-						"Restart", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+			restartButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					int n = JOptionPane.showOptionDialog(new JFrame(), "Are you sure you want to restart the game?",
+							"Restart", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
 
-				if (n == 0) {
-					try {
-						controller.restart();
-						newGame = true;
-					} catch (GameError _e) {
+					if (n == 0) {
+						try {
+							controller.restart();
+							newGame = true;
+						} catch (GameError _e) {
 
+						}
+						setVisible(true);
+						repaint();
 					}
-					setVisible(true);
-					repaint();
 				}
-			}
-		});
+			});
 
-		this.exitPanel.add(restartButton);
+			this.exitPanel.add(restartButton);
+		}
 
 		this.ControllerPanel.add(this.exitPanel);
 
@@ -777,7 +779,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 		if (this.turn == turn)
 			this.inMove = false;
 		if (!success)
-			handleChangeTurn(turn);
+			handleChangeTurn(board, turn);
 	}
 
 	@Override
@@ -786,7 +788,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				handleChangeTurn(turn);
+				handleChangeTurn(board, turn);
 			}
 		});
 	}
@@ -844,7 +846,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 		this.gameMessages.setText("");
 		this.addMessageToTextArea(" --  --   GAME START  --  -- *");
 
-		handleChangeTurn(turn);
+		handleChangeTurn(board, turn);
 	}
 
 	/**
@@ -903,10 +905,12 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>handleGameStart</b>
 	 * <p>handle process of status change turn</p>
+	 * @param board 
 	 * @param board of the model
 	 * @param turn
 	 */
-	private void handleChangeTurn(Piece turn) {
+	private void handleChangeTurn(Board board, Piece turn) {
+		this.board = board;
 		this.infoTable.refresh();
 		this.turn = turn;
 		this.addMessageToTextArea("Turn for " + (turn.equals(localPiece) ? "You!" : turn.toString()));

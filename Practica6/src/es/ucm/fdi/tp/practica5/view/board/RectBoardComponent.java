@@ -69,7 +69,7 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				System.out.println("Mouse Released: " + "(" + e.getX() + "," + e.getY() + ")");
+				//System.out.println("Mouse Released: " + "(" + e.getX() + "," + e.getY() + ")");
 				int row = (e.getX()/_CELL_WIDTH);
 				int col = (e.getY()/_CELL_HEIGHT);
 				RectBoardComponent.this.mouseReleased(row, col, e.getClickCount(), e.getButton());
@@ -77,7 +77,7 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				System.out.println("Mouse Pressed: " + "(" + e.getX() + "," + e.getY() + ")");
+				//System.out.println("Mouse Pressed: " + "(" + e.getX() + "," + e.getY() + ")");
 				int row = (e.getX()/_CELL_WIDTH);
 				int col = (e.getY()/_CELL_HEIGHT);
 				RectBoardComponent.this.mousePressed(row, col, e.getClickCount(), e.getButton());
@@ -85,18 +85,17 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-				System.out.println("Mouse Exited Component: " + "(" + e.getX() + "," + e.getY() + ")");
+				//System.out.println("Mouse Exited Component: " + "(" + e.getX() + "," + e.getY() + ")");
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				System.out.println("Mouse Entered Component: " + "(" + e.getX() + "," + e.getY() + ")");
+				//System.out.println("Mouse Entered Component: " + "(" + e.getX() + "," + e.getY() + ")");
 			}
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.out.println(
-						"Mouse Button " + e.getButton() + " Clicked at " + "(" + e.getX() + "," + e.getY() + ")");
+				//System.out.println("Mouse Button " + e.getButton() + " Clicked at " + "(" + e.getX() + "," + e.getY() + ")");
 				int row = (e.getX()/_CELL_WIDTH);
 				int col = (e.getY()/_CELL_HEIGHT);
 				RectBoardComponent.this.mouseClicked(row, col, e.getClickCount(), e.getButton());
