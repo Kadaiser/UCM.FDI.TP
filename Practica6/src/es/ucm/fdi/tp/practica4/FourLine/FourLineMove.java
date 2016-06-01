@@ -36,18 +36,15 @@ public class FourLineMove extends GameMove {
 	public void execute(Board board, List<Piece> pieces) {
 		Piece p = getPiece();
 		int row = 1;
-		boolean exist = false;
+		
 		if(board.getPosition(row, this.col) != null)
 			throw new GameError("Columm (" + this.col + ") is full");
 		
-		while(row < board.getRows() && !exist){
-			if(board.getPosition(row, this.col) != null){
-				exist = true;
-			}
+		while(row + 1 < board.getRows() &&  board.getPosition(row + 1, this.col) == null){
 			row++;
 		}
 		
-		board.setPosition(row-1, this.col, p);
+		board.setPosition(row, this.col, p);
 	}
 
 	@Override

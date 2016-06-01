@@ -59,6 +59,9 @@ public class FourLineRules implements GameRules {
 		int counter;
 		Pair<State, Piece> gameInPlayResult = new Pair<State, Piece>(State.InPlay, null);
 
+
+		
+
 		//Check Rows
 		for(int i= 1; i < this.dimRows; i++ ){
 			counter = 0;
@@ -68,6 +71,22 @@ public class FourLineRules implements GameRules {
 				}
 				else{
 					if(turn.equals(board.getPosition(i, j)))
+						counter++;
+					else
+						counter = 0;
+				}
+			}
+		}
+		
+		//Check Cols
+		for(int i= 0; i < this.dimCols; i++ ){
+			counter = 0;
+			for(int j = 1; j < this.dimRows; j++){
+				if(counter == 4){
+				 return new Pair<State, Piece>(State.Won, turn);
+				}
+				else{
+					if(turn.equals(board.getPosition(j, i)))
 						counter++;
 					else
 						counter = 0;
