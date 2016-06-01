@@ -2,6 +2,7 @@ package es.ucm.fdi.tp.practica5.view.board;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -42,8 +43,10 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 	protected int _CELL_WIDTH = 100;
 	
 	public enum Tipes{
-		PIECE, CELL, OBSTACLE
+		PIECE, CELL, OBSTACLE, STRING
 	}
+	
+	private final Font stringFont = new Font( "Helvetica", Font.BOLD, 50 ); 
 	
 	
 	public RectBoardComponent(final Observable<GameObserver> game, Board board){
@@ -139,6 +142,9 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 					case OBSTACLE:
 						drawObtacle(x,y,g);
 						break;
+					case STRING:
+						drawString(x,y,g,board.getPosition(i, j).getId());
+						break;
 					default:
 						drawCell(x,y,g);
 						break;
@@ -147,6 +153,8 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 		}
 	}
 	
+
+
 	/**
 	 * 
 	 * @param x
@@ -183,12 +191,38 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 		g.fillRect(x + 4, y + 4, _CELL_WIDTH - 8, _CELL_HEIGHT - 8);
 	}
 
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 * @param g
+	 * @param string 
+	 */
+	private void drawString(int x, int y, Graphics g, String string) {
+		float value;
+		try{
+			value = Integer.parseInt(string);
+		}catch(NumberFormatException e){
+			value = 0;
+		}
+		g.setColor(Color.LIGHT_GRAY);
+		g.fillRect(x + 4, y + 4, _CELL_WIDTH - 8, _CELL_HEIGHT - 8);
+		g.setColor(Color.getHSBColor(value, value, value));
+		if(string.equals("9")){
+			g.setColor(Color.RED);
+			g.drawLine(x + 13, y + 13, x + 63, y + 63);
+			g.drawLine(x + 13, y + 63, x + 63, y + 13);
+			
+		}
+		else if(!string.equals("0")){
+			g.setFont(stringFont);
+			g.drawString(string, x + 23, y + 57);
+		}
+	}	
 	
 	
 	
-	
-	
-	
+
 	@Override
 	public void onGameStart(Board board, String gameDesc, List<Piece> pieces, Piece turn) {
 		this.board = board;

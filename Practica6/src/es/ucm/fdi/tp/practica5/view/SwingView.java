@@ -42,7 +42,7 @@ import es.ucm.fdi.tp.basecode.bgame.model.GameObserver;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
 import es.ucm.fdi.tp.practica5.view.board.RectBoardComponent;
 import es.ucm.fdi.tp.practica5.view.color.ColorChooser;
-import es.ucm.fdi.tp.practica5.view.sound.MakeSound;
+//import es.ucm.fdi.tp.practica5.view.sound.MakeSound;
 import es.ucm.fdi.tp.basecode.bgame.model.Observable;
 
 public abstract class SwingView extends JFrame implements GameObserver{
@@ -261,7 +261,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>initGUI</b>
 	 * <p> Creation procedure for the main frame</p>
-	 * <p> Procedimiento de maquetación del frame principal</p> 
+	 * <p> Procedimiento de maquetaciï¿½n del frame principal</p> 
 	 */
 	private void initGUI() {
 
@@ -333,7 +333,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>gameMessagesPanel</b>
 	 * <p> Creation procedure accumulator panel components</p>
-	 * <p> Procedimiento de creación del panel aglomerador de componentes</p> 
+	 * <p> Procedimiento de creaciï¿½n del panel aglomerador de componentes</p> 
 	 */
 	final private void createPanels() {
 
@@ -354,7 +354,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>gameMessagesPanel</b>
 	 * <p> Creation procedure accumulator panel components</p>
-	 * <p> Procedimiento de creación de un panel etiquetado y centrado</p> 
+	 * <p> Procedimiento de creaciï¿½n de un panel etiquetado y centrado</p> 
 	 * @param label String whit the label for the titled border
 	 * @param color background configuration
 	 * @return a instanced titled JPanel 
@@ -384,7 +384,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>gameMessagesPanel</b>
 	 * <p> Component creation process for the status game messages </p>
-	 * <p> Procedimiento de creación del componente de mensajes de estado del juego</p> 
+	 * <p> Procedimiento de creaciï¿½n del componente de mensajes de estado del juego</p> 
 	 */
 	private void gameMessagesComponent() {
 		this.gameMessagesPanel = createPanelLabeled("Game Information", Color.LIGHT_GRAY);
@@ -418,7 +418,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	
 	/**
 	 * <b>playerInformationPanel</b>
-	 * <p>Panel contenedor del tablon de información de jugadores </p>
+	 * <p>Panel contenedor del tablon de informaciï¿½n de jugadores </p>
 	 */
 	private JPanel playerInformationPanel;
 	
@@ -431,7 +431,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>playerInformationComponent</b>
 	 * <p> Component creation process for the payers information </p>
-	 * <p> Procedimiento de creación del componente de informacion de jugadores</p> 
+	 * <p> Procedimiento de creaciï¿½n del componente de informacion de jugadores</p> 
 	 */
 	private void playerInformationComponent() {
 		this.playerInformationPanel = createPanelLabeled("Player Information", Color.LIGHT_GRAY);
@@ -470,7 +470,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>selectColorComponent</b>
 	 * <p> Component creation process for the colors change </p>
-	 * <p> Procedimiento de creación del componente de cambio de colores</p> 
+	 * <p> Procedimiento de creaciï¿½n del componente de cambio de colores</p> 
 	 */
 	private void selectColorComponent() {
 		this.selectColorPanel = createPanelLabeled("Color Selection", Color.LIGHT_GRAY);
@@ -522,7 +522,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>selectModePlayerComponent</b>
 	 * <p> Component creation process for the modes change </p>
-	 * <p> Procedimiento de creación del componente de cambio de modos</p> 
+	 * <p> Procedimiento de creaciï¿½n del componente de cambio de modos</p> 
 	 */
 	@SuppressWarnings("serial")
 	private void selectModePlayerComponent() {
@@ -585,7 +585,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>automaticMoveComponent</b>
 	 * <p> Component creation process for the automatic movements </p>
-	 * <p> Procedimiento de creación del componente de movimientos automaticos</p> 
+	 * <p> Procedimiento de creaciï¿½n del componente de movimientos automaticos</p> 
 	 */
 	private void automaticMoveComponent() {
 
@@ -626,7 +626,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	/**
 	 * <b>exitComponent</b>
 	 * <p> Component creation process for the automatic movements </p>
-	 * <p> Procedimiento de creación del componente de movimientos automaticos</p> 
+	 * <p> Procedimiento de creaciï¿½n del componente de movimientos automaticos</p> 
 	 */
 	private void exitComponent() {
 
@@ -655,7 +655,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 
 		this.exitPanel.add(quit);
 
-		if(this.localPiece.equals(null)){
+		if(this.localPiece == null){
 			JButton restartButton = new JButton("Restart");
 			restartButton.setToolTipText("Reset the game to start a new play");
 
@@ -865,11 +865,11 @@ public abstract class SwingView extends JFrame implements GameObserver{
 
 		switch (state) {
 		case Won:
-			MakeSound.RunPlaySound("sound/winner.wav");
+			//MakeSound.RunPlaySound("sound/winner.wav");
 			this.addMessageToTextArea(" " + winner + " is the winner!!");
 			break;
 		case Draw:
-			MakeSound.RunPlaySound("sound/draw.wav");
+			//MakeSound.RunPlaySound("sound/draw.wav");
 			this.addMessageToTextArea("Look at this, we have a draw!!");
 			break;
 		case Stopped:
@@ -924,7 +924,7 @@ public abstract class SwingView extends JFrame implements GameObserver{
 //-----------------------METODOS ABSTRACTOS DE CLASE--------------------------//
 	/**
 	 * <b>initBoardGui</b>
-	 * <p>implementation of the boar game, it´s supposed to be created on the FiniteRectSwingView</p>
+	 * <p>implementation of the boar game, itï¿½s supposed to be created on the FiniteRectSwingView</p>
 	 * @param ctrl of the game
 	 * @param game observable of the model
 	 */
@@ -932,19 +932,19 @@ public abstract class SwingView extends JFrame implements GameObserver{
 	
 	/**
 	 * <b>activateBoard</b>
-	 * <p>whenever it´s used, the board of the game have to be enabled</p>
+	 * <p>whenever itï¿½s used, the board of the game have to be enabled</p>
 	 */
 	protected abstract void activateBoard();
 	
 	/**
 	 * <b>deActivateBoard</b>
-	 * <p>whenever it´s used, the board of the game have to be disabled</p>
+	 * <p>whenever itï¿½s used, the board of the game have to be disabled</p>
 	 */
 	protected abstract void deActivateBoard();
 	
 	/**
 	 * <b>redrawBoard</b>
-	 * <p>whenever it´s used, the board of the game have to be repaint</p>
+	 * <p>whenever itï¿½s used, the board of the game have to be repaint</p>
 	 */
 	protected abstract void redrawBoard();
 	

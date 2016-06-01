@@ -51,12 +51,16 @@ public abstract class RectBoardSwingView extends SwingView {
 			@Override
 			protected Tipes getPieceTipe(Piece piece) {
 				Tipes PieceTipe = null;
-				if (getPieces().contains(piece))
+				if (piece == null)
+					PieceTipe = Tipes.CELL;
+				else if (getPieces().contains(piece))
 					PieceTipe = Tipes.PIECE;
 				else if (piece != null && piece.getId().equals("+"))
 					PieceTipe = Tipes.OBSTACLE;
-				else
+				else if (piece != null && piece.getId().equals("*"))
 					PieceTipe = Tipes.CELL;
+				else
+					PieceTipe = Tipes.STRING;
 
 				return PieceTipe;
 			}

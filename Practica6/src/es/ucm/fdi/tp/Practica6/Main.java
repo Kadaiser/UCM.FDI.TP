@@ -13,6 +13,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import es.ucm.fdi.tp.practica5.attt.AdvancedTTTFactoryExt;
+import es.ucm.fdi.tp.practica5.buscaminas.BuscaMinasFactoryExt;
 import es.ucm.fdi.tp.Practica6.client.GameClient;
 import es.ucm.fdi.tp.Practica6.server.GameServer;
 import es.ucm.fdi.tp.basecode.bgame.control.ConsoleCtrl;
@@ -855,7 +856,8 @@ public class Main {
 	 */
 	enum GameInfo {
 		CONNECTN("cn", "ConnectN"), TicTacToe("ttt", "Tic-Tac-Toe"), AdvancedTicTacToe("attt",
-				"Advanced Tic-Tac-Toe"), Ataxx("ataxx", "Ataxx");
+				"Advanced Tic-Tac-Toe"), Ataxx("ataxx", "Ataxx"), Buscaminas("bm", "Buscaminas"),
+		FOURLINE("4l", "FourLine");
 
 		private String id;
 		private String desc;
@@ -968,6 +970,17 @@ public class Main {
 				gameFactory = new AtaxxFactoryExt(5, obstacles);
 			else
 				gameFactory = new AtaxxFactoryExt();
+			break;
+		case Buscaminas:
+			if (dimRows != null && dimCols != null) {
+				if (obstacles != null)
+					gameFactory = new BuscaMinasFactoryExt(dimRows, dimCols, obstacles);
+				else
+					gameFactory = new BuscaMinasFactoryExt(dimRows, dimCols);
+			} else if (obstacles != null)
+				gameFactory = new BuscaMinasFactoryExt(7, 7, obstacles);
+			else
+				gameFactory = new BuscaMinasFactoryExt();
 			break;
 		default:
 			throw new UnsupportedOperationException("Something went wrong! This program point should be unreachable!");
