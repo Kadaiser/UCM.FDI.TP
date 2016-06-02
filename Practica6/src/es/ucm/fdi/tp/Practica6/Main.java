@@ -26,6 +26,7 @@ import es.ucm.fdi.tp.basecode.bgame.model.Game;
 import es.ucm.fdi.tp.basecode.bgame.model.GameError;
 import es.ucm.fdi.tp.basecode.bgame.model.Piece;
 import es.ucm.fdi.tp.basecode.minmax.MinMax;
+import es.ucm.fdi.tp.practica5.FourLine.FourLineFactoryExt;
 import es.ucm.fdi.tp.practica5.ataxx.AtaxxFactoryExt;
 import es.ucm.fdi.tp.practica5.connectn.ConnectNFactoryExt;
 import es.ucm.fdi.tp.practica5.ttt.TicTacToeFactoryExt;
@@ -981,6 +982,19 @@ public class Main {
 				gameFactory = new BuscaMinasFactoryExt(7, 7, obstacles);
 			else
 				gameFactory = new BuscaMinasFactoryExt();
+			break;
+		case FOURLINE:
+			if (dimRows != null && dimCols != null) {
+					gameFactory = new FourLineFactoryExt(dimRows, dimCols);
+			} 
+			else if (dimRows != null)
+				gameFactory = new FourLineFactoryExt(7, dimCols);
+			
+			else if (dimCols != null)
+				gameFactory = new FourLineFactoryExt(dimCols, 7);
+			
+			else
+				gameFactory = new FourLineFactoryExt();
 			break;
 		default:
 			throw new UnsupportedOperationException("Something went wrong! This program point should be unreachable!");

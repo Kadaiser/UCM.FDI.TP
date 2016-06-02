@@ -70,7 +70,7 @@ public class FourLineMove extends GameMove {
 
 	@Override
 	public String help() {
-			return "Deploy a piece '" + getPiece() + "' at (" + col + ") column";
+			return "Deploy a piece at the selected column";
 	}
 
 }

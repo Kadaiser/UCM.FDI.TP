@@ -73,16 +73,16 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				//System.out.println("Mouse Released: " + "(" + e.getX() + "," + e.getY() + ")");
-				int row = (e.getX()/_CELL_WIDTH);
-				int col = (e.getY()/_CELL_HEIGHT);
+				int col = (e.getX()/_CELL_WIDTH);
+				int row = (e.getY()/_CELL_HEIGHT);
 				RectBoardComponent.this.mouseReleased(row, col, e.getClickCount(), e.getButton());
 			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
 				//System.out.println("Mouse Pressed: " + "(" + e.getX() + "," + e.getY() + ")");
-				int row = (e.getX()/_CELL_WIDTH);
-				int col = (e.getY()/_CELL_HEIGHT);
+				int col = (e.getX()/_CELL_WIDTH);
+				int row = (e.getY()/_CELL_HEIGHT);
 				RectBoardComponent.this.mousePressed(row, col, e.getClickCount(), e.getButton());
 			}
 
@@ -99,8 +99,8 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				//System.out.println("Mouse Button " + e.getButton() + " Clicked at " + "(" + e.getX() + "," + e.getY() + ")");
-				int row = (e.getX()/_CELL_WIDTH);
-				int col = (e.getY()/_CELL_HEIGHT);
+				int col = (e.getX()/_CELL_WIDTH);
+				int row = (e.getY()/_CELL_HEIGHT);
 				RectBoardComponent.this.mouseClicked(row, col, e.getClickCount(), e.getButton());
 			}
 		});
@@ -129,8 +129,8 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 		for (int i = 0; i < board.getRows(); i++){
 			for (int j = 0; j < board.getCols(); j++) {
 				
-				x = i * _CELL_WIDTH;
-				y = j * _CELL_HEIGHT;
+				x = j * _CELL_WIDTH;
+				y = i * _CELL_HEIGHT;
 				
 				drawCell(x,y,g);
 
@@ -213,6 +213,10 @@ public abstract class RectBoardComponent extends JComponent implements GameObser
 			g.drawLine(x + 13, y + 13, x + 63, y + 63);
 			g.drawLine(x + 13, y + 63, x + 63, y + 13);
 			
+		}
+		else if(string.equals("·")){
+			g.setColor(Color.YELLOW);
+			g.fillRect(x + 4, y + 4, _CELL_WIDTH - 8, _CELL_HEIGHT - 8);
 		}
 		else if(!string.equals("0")){
 			g.setFont(stringFont);

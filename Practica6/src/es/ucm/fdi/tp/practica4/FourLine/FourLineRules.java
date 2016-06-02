@@ -7,7 +7,6 @@ import es.ucm.fdi.tp.basecode.bgame.model.Board;
 import es.ucm.fdi.tp.basecode.bgame.model.FiniteRectBoard;
 import es.ucm.fdi.tp.basecode.bgame.model.GameError;
 import es.ucm.fdi.tp.basecode.bgame.model.Game.State;
-import es.ucm.fdi.tp.basecode.connectn.ConnectNMove;
 import es.ucm.fdi.tp.basecode.bgame.model.GameMove;
 import es.ucm.fdi.tp.basecode.bgame.model.GameRules;
 import es.ucm.fdi.tp.basecode.bgame.model.Pair;
@@ -36,7 +35,11 @@ public class FourLineRules implements GameRules {
 
 	@Override
 	public Board createBoard(List<Piece> pieces) {
-		return new FiniteRectBoard(this.dimRows, this.dimCols);
+		Board board = new FiniteRectBoard(this.dimRows, this.dimCols);
+		for(int i = 0; i < this.dimCols; i++)
+			board.setPosition(0, i, new Piece("·"));
+		return board;
+			
 	}
 
 	@Override
@@ -79,9 +82,9 @@ public class FourLineRules implements GameRules {
 		}
 		
 		//Check Cols
-		for(int i= 0; i < this.dimCols; i++ ){
+		for(int i= 1; i <this.dimRows ; i++ ){
 			counter = 0;
-			for(int j = 1; j < this.dimRows; j++){
+			for(int j = 0; j < this.dimCols; j++){
 				if(counter == 4){
 				 return new Pair<State, Piece>(State.Won, turn);
 				}
@@ -111,7 +114,6 @@ public class FourLineRules implements GameRules {
 
 	@Override
 	public double evaluate(Board board, List<Piece> pieces, Piece turn, Piece p) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -120,7 +122,7 @@ public class FourLineRules implements GameRules {
 		List<GameMove> moves = new ArrayList<GameMove>();
 		
 			for (int j = 0; j < board.getCols(); j++) {
-					moves.add(new ConnectNMove(0, j, turn));
+					moves.add(new FourLineMove(j, turn));
 			}
 		return moves;
 	}
